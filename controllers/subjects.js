@@ -23,19 +23,18 @@ export const addSubject = async (req, res) => {
         res.status(201).json(newSubject);
     }
     catch(err){
-        res.status(409).json({ message: err.message })
+        res.status(409).json({ message: err.message });
     }
 }
 
 export const viewSubject = async (req, res) => {
     const { subject: _subject } = req.params;
     try{
-        const subject = await subjectMessage.find({ subject_abbr: _subject });
-
+        const subject = await subjectMessage.findOne({ subject_abbr: _subject });
         res.status(200).json(subject);
     }
     catch(err){
-        res.status(404).json({ message: err.message })
+        res.status(404).json({ message: err.message });
     }
 }
 
@@ -43,13 +42,13 @@ export const updateSubject = async (req, res) => {
     const { subject: subject } = req.params;
     const subjectContent = req.body;
     try{
-        const subjectId = convertAbbrToId(subject);
+        const subjectId = await convertAbbrToId(subject);
         const updatedSubject = await subjectMessage.findByIdAndUpdate(subjectId, { ... subjectContent, subjectId}, { new: true });
         res.json(updatedSubject);
         res.json(subjectId);
     }
     catch(err){
-        res.status(404).json({ message: err.message })
+        res.status(404).json({ message: err.message });
     }    
 }
 
@@ -65,4 +64,14 @@ const convertAbbrToId = async ( _abbr ) => {
     catch(err){
         console.log(err.message);
     }
+}
+
+export const getSubjectName = async (req, res) => {
+    try{
+        const subject = await subjectMessage.findById(req.params.id);
+        res.status(200).json(subject);
+    }
+    catch(err){
+        res.status(404).json({ message: err.message });
+    }    
 }

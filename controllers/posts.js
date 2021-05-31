@@ -4,7 +4,7 @@ import subjectMessage from '../models/subject.js';
 
 export const getPosts = async (req, res) => {
     try{
-        const posts = await postMessage.find();
+        const posts = await postMessage.find().sort({createdAt: 'desc'});
 
         res.status(200).json(posts);
     }
@@ -24,6 +24,7 @@ export const createPost = async (req, res) => {
         res.status(201).json(newPost);
     }
     catch(err){
+        console.log(err.message);
         res.status(409).json({ message: err.message })
     }
 }
