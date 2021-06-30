@@ -36,16 +36,20 @@ const postSchema = new Schema({
         required: true,
     },
     student_id: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'user',
         required: true,
     },
     subject_id: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'subject',
         required: true,
     },
     //Optional
     teacher_id:{
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: true,
     },
     review_detail:{
         type: String,

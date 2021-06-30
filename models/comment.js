@@ -15,9 +15,9 @@ const commentSchema = new Schema({
         type: Number,
         default: 0,
     },
-    post_id:{
-        type: String,
-        required: true,
+    basePost:{
+        type: Schema.Types.ObjectId,
+        ref: 'review'
     }
 },{
     timestamps: true
