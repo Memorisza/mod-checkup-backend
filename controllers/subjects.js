@@ -1,9 +1,9 @@
-import mongoose from 'mongoose'
-import subjectMessage from '../models/subject.js'
+var mongoose = require('mongoose');
+var subjectModel = require('../models/subject.js');
 
 export const getSubjects = async (req, res) => {
     try{
-        const subjects = await subjectMessage.find();
+        const subjects = await subjectModel.find();
 
         res.status(200).json(subjects);
     }
@@ -15,7 +15,7 @@ export const getSubjects = async (req, res) => {
 export const addSubject = async (req, res) => {
     const subjectBody = req.body;
 
-    const newSubject = new subjectMessage(subjectBody);
+    const newSubject = new subjectModel(subjectBody);
 
     try{
         await newSubject.save();
@@ -30,7 +30,7 @@ export const addSubject = async (req, res) => {
 export const viewSubject = async (req, res) => {
     const { subject: _subject } = req.params;
     try{
-        const subject = await subjectMessage.findOne({ subject_abbr: _subject });
+        const subject = await subjectModel.findOne({ subject_abbr: _subject });
         res.status(200).json(subject);
     }
     catch(err){
@@ -43,7 +43,7 @@ export const updateSubject = async (req, res) => {
     const subjectContent = req.body;
     try{
         const subjectId = await convertAbbrToId(subject);
-        const updatedSubject = await subjectMessage.findByIdAndUpdate(subjectId, { ... subjectContent, subjectId}, { new: true });
+        const updatedSubject = await subjectModel.findByIdAndUpdate(subjectId, { ... subjectContent, subjectId}, { new: true });
         res.json(updatedSubject);
         res.json(subjectId);
     }
@@ -54,7 +54,7 @@ export const updateSubject = async (req, res) => {
 
 const convertAbbrToId = async ( _abbr ) => {
     try{
-        const subject = await subjectMessage.findOne({ subject_abbr: _abbr });
+        const subject = await subjectModel.findOne({ subject_abbr: _abbr });
         return subject._id;
         // console.log(_abbr);
         // console.log(subject._id);
@@ -68,7 +68,7 @@ const convertAbbrToId = async ( _abbr ) => {
 
 export const getSubjectName = async (req, res) => {
     try{
-        const subject = await subjectMessage.findById(req.params.id);
+        const subject = await subjectModel.findById(req.params.id);
         res.status(200).json(subject);
     }
     catch(err){

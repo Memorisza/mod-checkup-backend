@@ -1,4 +1,4 @@
-import express from 'express'
+var express = require('express');
 
 import { getPosts, createPost, viewPost, updatePost, deletePost, likePost, dislikePost, getPostBySubject } from '../controllers/posts.js'
 

@@ -1,10 +1,13 @@
-import express from 'express'
-import cors from 'cors'
-import mongoose from 'mongoose'
-import dotenv from 'dotenv'
+var express = require('express');
+var cors = require('cors');
+var mongoose = require('mongoose');
+var dotenv = require('dotenv');
 
-import postRouter from './routes/posts.js'
-import subjectRouter from './routes/subjects.js'
+var postRouter = require('./routes/posts.js');
+var subjectRouter = require('./routes/subjects.js');
+
+var passport = require('passport');
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 dotenv.config()
 

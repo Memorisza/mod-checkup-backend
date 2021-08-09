@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+var mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
@@ -49,7 +49,6 @@ const postSchema = new Schema({
     review_teacher:{
         type: Schema.Types.ObjectId,
         ref: 'user',
-        required: true,
     },
     review_detail:{
         type: String,

@@ -1,4 +1,4 @@
-import express from 'express'
+var express = require('express');
 
 import { getSubjects, addSubject, viewSubject, updateSubject, getSubjectName } from '../controllers/subjects.js'
 
