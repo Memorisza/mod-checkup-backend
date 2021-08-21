@@ -29,7 +29,11 @@ export const createPost = async (req, res) => {
 
 export const getPostById = async (req, res) => {
     try{
-        const post = await postModel.findById(req.params.id);
+        const post = await postModel.findById(req.params.postId);
+
+        if(post == null){
+            res.status(404).json();
+        }
 
         res.status(200).json(post);
     }

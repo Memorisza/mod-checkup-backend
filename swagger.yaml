@@ -13,8 +13,8 @@ tags:
 - name: "users"
   description: "Operations about user"
 schemes:
-- "https"
 - "http"
+- "https"
 paths:
   /reviews:
     post:
