@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -19,14 +19,6 @@ const postSchema = new Schema({
         type: Number,
         required: true,
     },
-    like_rating: {
-        type: Number,
-        default: 0,
-    },
-    dislike_rating: {
-        type: Number,
-        default: 0,
-    },
     academic_year: {
         type: Number,
         required: true,
@@ -44,6 +36,19 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'subject',
         required: true,
+    },
+    //With Default
+    like_rating: {
+        type: Number,
+        default: 0,
+    },
+    dislike_rating: {
+        type: Number,
+        default: 0,
+    },
+    active: {
+        type: Boolean,
+        default: true
     },
     //Optional
     review_teacher:{

@@ -1,13 +1,9 @@
-var mongoose = require('mongoose');
+import mongoose from 'mongoose'
 
 const Schema = mongoose.Schema
 
 const userSchema = mongoose.Schema({
-    owner_name:{
-        type: String,
-        required: true,
-    },
-    owner_email:{
+    google_id:{
         type: String,
         required: true,
     },

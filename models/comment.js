@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+import mongoose from 'mongoose'
 
 const Schema = mongoose.Schema;
 
@@ -17,7 +17,8 @@ const commentSchema = new Schema({
     },
     basePost:{
         type: Schema.Types.ObjectId,
-        ref: 'review'
+        ref: 'review',
+        required: true
     }
 },{
     timestamps: true

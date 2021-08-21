@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var subjectModel = require('../models/subject.js');
+import mongoose from 'mongoose'
+import subjectModel from '../models/subject.js'
 
-export const getSubjects = async (req, res) => {
+export const getAllSubjects = async (req, res) => {
     try{
         const subjects = await subjectModel.find();
 
