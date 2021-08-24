@@ -1,10 +1,21 @@
 import mongoose from 'mongoose'
-import postMessage from '../models/post.js'
-import subjectMessage from '../models/subject.js';
+import postModel from '../models/post.js'
+import subjectModel from '../models/subject.js'
 
-export const getPosts = async (req, res) => {
+export const getAllPosts = async (req, res) => {
     try{
-        const posts = await postMessage.find().sort({createdAt: 'desc'});
+        const posts = await postModel.find().sort({createdAt: 'desc'});
+
+        res.status(200).json(posts);
+    }
+    catch(err){
+        res.status(404).json({ message: err.message });
+    }
+}
+
+export const getActivePosts = async (req, res) => {
+    try{
+        const posts = await postModel.find({active: true}).sort({createdAt: 'desc'});
 
         res.status(200).json(posts);
     }
@@ -16,22 +27,24 @@ export const getPosts = async (req, res) => {
 export const createPost = async (req, res) => {
     const postBody = req.body;
 
-    const newPost = new postMessage(postBody);
+    const newPost = new postModel(postBody);
 
     try{
         await newPost.save();
-
         res.status(201).json(newPost);
     }
     catch(err){
-        console.log(err.message);
         res.status(409).json({ message: err.message })
     }
 }
 
-export const viewPost = async (req, res) => {
+export const getPostById = async (req, res) => {
     try{
-        const post = await postMessage.findById(req.params.id);
+        const post = await postModel.findById(req.params.postId);
+
+        if(post == null){
+            res.status(404).json();
+        }
 
         res.status(200).json(post);
     }
@@ -41,24 +54,14 @@ export const viewPost = async (req, res) => {
 }
 
 export const updatePost = async (req, res) => {
-    const { id: _id } = req.params;
+    const { postId: _id } = req.params;
     const post = req.body;
 
     if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id.');
 
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, { ... post, _id}, { new: true });
+    const updatedPost = await postModel.findByIdAndUpdate(_id, { ... post, _id}, { new: true });
 
     res.json(updatedPost);
-}
-
-export const deletePost = async (req, res) => {
-    const { id } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No post with that id.');
-
-    await postMessage.findByIdAndRemove(id);
-
-    res.json({message: 'Post deleted successfully'});
 }
 
 export const likePost = async (req, res) => {
@@ -66,8 +69,8 @@ export const likePost = async (req, res) => {
 
     if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id.');
 
-    const post = await postMessage.findById(_id);
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, { like_rating: post.like_rating + 1 }, { new: true });
+    const post = await postModel.findById(_id);
+    const updatedPost = await postModel.findByIdAndUpdate(_id, { like_rating: post.like_rating + 1 }, { new: true });
 
     res.json(updatedPost);    
 }
@@ -77,8 +80,8 @@ export const dislikePost = async (req, res) => {
 
     if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id.');
 
-    const post = await postMessage.findById(_id);
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, { dislike_rating: post.dislike_rating + 1 }, { new: true });
+    const post = await postModel.findById(_id);
+    const updatedPost = await postModel.findByIdAndUpdate(_id, { dislike_rating: post.dislike_rating + 1 }, { new: true });
 
     res.json(updatedPost);    
 }
@@ -87,11 +90,32 @@ export const getPostBySubject = async (req, res) => {
     const { subject: _subject } = req.params;
     
     try{
-        const posts = await postMessage.find({ subject_id: _subject });
+        const subjectId = await subjectModel.findOne({subject_abbr: _subject})
+        const posts = await postModel.find({ reviewedSubject: subjectId });
 
         res.status(200).json(posts);
     }
     catch(err){
         res.status(404).json({ message: err.message });
     }    
+}
+
+export const softDeletePost = async (req, res) => {
+    const { postId } = req.params;
+
+    if(!mongoose.Types.ObjectId.isValid(postId)) return res.status(404).send('No post with that id.');
+
+    const updatedPost = await postModel.findByIdAndUpdate(postId, { active: false }, { new: true });
+
+    res.json(updatedPost);    
+}
+
+export const getPostsByUserId = async (req, res) => {
+    const { userId } = req.params;
+
+    if(!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).send('No user with that id.');
+
+    const updatedPost = await postModel.find({reviewer: userId});
+
+    res.json(updatedPost);    
 }

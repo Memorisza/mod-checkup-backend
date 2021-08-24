@@ -3,20 +3,34 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
 const userSchema = mongoose.Schema({
-    owner_name:{
+    googleId: {
         type: String,
         required: true,
     },
-    owner_email:{
+    displayName: {
         type: String,
         required: true,
     },
-    owner_role:{
+    firstName: {
         type: String,
         required: true,
+    },
+    lastName: {
+        type: String,
+        required: true,
+    },
+    image: {
+        type: String,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    owner_role: {
+        type: String
     }
-},{
-        timestamp: true,
+}, {
+    timestamp: true,
 });
 
 const userMessage = mongoose.model('user', userSchema);

@@ -1,13 +1,19 @@
 import express from 'express'
 
-import { getSubjects, addSubject, viewSubject, updateSubject, getSubjectName } from '../controllers/subjects.js'
+import { getAllSubjects, addSubject, viewSubject, updateSubject, getSubjectAllInfoAndPosts} from '../controllers/subjects.js'
 
 const router = express.Router();
 
-router.get('/', getSubjects);
-router.post('/add', addSubject);
-router.get('/:subject', viewSubject);
-router.get('/s/:id', getSubjectName);
+// Old Routing
+// router.get('/', getSubjects);
+// router.post('/', addSubject);
+// router.get('/:subject', viewSubject);
+// router.put('/:subject', updateSubject);
+
+router.get('/', getAllSubjects);
+router.post('/', addSubject);
+router.get('/:subject', getSubjectAllInfoAndPosts);
 router.put('/:subject', updateSubject);
+
 
 export default router;

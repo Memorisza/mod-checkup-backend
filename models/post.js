@@ -19,14 +19,6 @@ const postSchema = new Schema({
         type: Number,
         required: true,
     },
-    like_rating: {
-        type: Number,
-        default: 0,
-    },
-    dislike_rating: {
-        type: Number,
-        default: 0,
-    },
     academic_year: {
         type: Number,
         required: true,
@@ -35,17 +27,33 @@ const postSchema = new Schema({
         type: Number,
         required: true,
     },
-    student_id: {
-        type: String,
+    reviewer: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
         required: true,
     },
-    subject_id: {
-        type: String,
+    reviewedSubject: {
+        type: Schema.Types.ObjectId,
+        ref: 'subject',
         required: true,
+    },
+    //With Default
+    like_rating: {
+        type: Number,
+        default: 0,
+    },
+    dislike_rating: {
+        type: Number,
+        default: 0,
+    },
+    active: {
+        type: Boolean,
+        default: true
     },
     //Optional
-    teacher_id:{
-        type: String,
+    review_teacher:{
+        type: Schema.Types.ObjectId,
+        ref: 'user',
     },
     review_detail:{
         type: String,

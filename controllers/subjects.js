@@ -1,9 +1,10 @@
 import mongoose from 'mongoose'
-import subjectMessage from '../models/subject.js'
+import subjectModel from '../models/subject.js'
+import postModel from '../models/post.js'
 
-export const getSubjects = async (req, res) => {
+export const getAllSubjects = async (req, res) => {
     try{
-        const subjects = await subjectMessage.find();
+        const subjects = await subjectModel.find();
 
         res.status(200).json(subjects);
     }
@@ -15,7 +16,7 @@ export const getSubjects = async (req, res) => {
 export const addSubject = async (req, res) => {
     const subjectBody = req.body;
 
-    const newSubject = new subjectMessage(subjectBody);
+    const newSubject = new subjectModel(subjectBody);
 
     try{
         await newSubject.save();
@@ -30,7 +31,7 @@ export const addSubject = async (req, res) => {
 export const viewSubject = async (req, res) => {
     const { subject: _subject } = req.params;
     try{
-        const subject = await subjectMessage.findOne({ subject_abbr: _subject });
+        const subject = await subjectModel.findOne({ subject_abbr: _subject });
         res.status(200).json(subject);
     }
     catch(err){
@@ -42,8 +43,7 @@ export const updateSubject = async (req, res) => {
     const { subject: subject } = req.params;
     const subjectContent = req.body;
     try{
-        const subjectId = await convertAbbrToId(subject);
-        const updatedSubject = await subjectMessage.findByIdAndUpdate(subjectId, { ... subjectContent, subjectId}, { new: true });
+        const updatedSubject = await subjectModel.findOneAndUpdate({ subject_abbr: subject }, { ... subjectContent}, { new: true })
         res.json(updatedSubject);
         res.json(subjectId);
     }
@@ -52,24 +52,19 @@ export const updateSubject = async (req, res) => {
     }    
 }
 
-const convertAbbrToId = async ( _abbr ) => {
-    try{
-        const subject = await subjectMessage.findOne({ subject_abbr: _abbr });
-        return subject._id;
-        // console.log(_abbr);
-        // console.log(subject._id);
-        // console.log(typeof subject._id);
-        // console.log(foundId instanceof mongoose.Types.ObjectId)
-    }
-    catch(err){
-        console.log(err.message);
-    }
-}
+export const getSubjectAllInfoAndPosts = async (req , res) => {
+    const { subject: _subject } = req.params;
 
-export const getSubjectName = async (req, res) => {
     try{
-        const subject = await subjectMessage.findById(req.params.id);
-        res.status(200).json(subject);
+        const foundSubject = await subjectModel.findOne({ subject_abbr: _subject });
+        const posts = await postModel.find({ reviewedSubject: foundSubject });
+
+        const tempWrapper = {
+            subjectInfo: foundSubject,
+            reviews: posts
+        }
+        
+        res.status(200).json(tempWrapper);
     }
     catch(err){
         res.status(404).json({ message: err.message });
