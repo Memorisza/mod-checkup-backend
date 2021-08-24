@@ -1,6 +1,8 @@
 import passport from 'passport'
 import { OAuth2Strategy } from 'passport-google-oauth';
 import dotenv from 'dotenv'
+import mongoose from 'mongoose'
+import userModel from '../models/user.js'
 
 dotenv.config();
 
@@ -8,20 +10,39 @@ dotenv.config();
 passport.use(new OAuth2Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: 'http://localhost:5000/auth/google/callback'
+    callbackURL: 'http://localhost:5000/api/auth/google/callback'
     },
-    function(accessToken, refreshToken, profile, done){
-        // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-        //     return done(err, user);
-        // });
-        return done(null, profile);
+    async (accessToken, refreshToken, profile, done) => {
+        // Get the user data from google
+        const newUser = {
+            googleId: profile.id,
+            displayName: profile.displayName,
+            firstName: profile.name.givenName,
+            lastName: profile.name.familyName,
+            image: profile.photos[0].value,
+            email: profile.emails[0].value
+        }
+        try{
+            //Find the logged in user in DB
+            let user = await userModel.findOne({googleId: profile.id})
+            if(user){
+                //If present
+                done(null, user)
+            } else {
+                //If not, create one
+                user = await userModel.create(newUser)
+                done(null, user)
+            }
+        }catch(err){
+            console.err(err)
+        }
     }
 ));
 
 passport.serializeUser(function(user, done) {
-    done(null, user);
+    done(null, user.id);
   });
   
-passport.deserializeUser(function(user, done) {
-    done(null, user)
+passport.deserializeUser(function(id, done) {
+    userModel.findById(id, (err, user) => done(err, user))
 });

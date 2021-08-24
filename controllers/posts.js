@@ -13,6 +13,17 @@ export const getAllPosts = async (req, res) => {
     }
 }
 
+export const getActivePosts = async (req, res) => {
+    try{
+        const posts = await postModel.find({active: true}).sort({createdAt: 'desc'});
+
+        res.status(200).json(posts);
+    }
+    catch(err){
+        res.status(404).json({ message: err.message });
+    }
+}
+
 export const createPost = async (req, res) => {
     const postBody = req.body;
 
@@ -80,7 +91,7 @@ export const getPostBySubject = async (req, res) => {
     
     try{
         const subjectId = await subjectModel.findOne({subject_abbr: _subject})
-        const posts = await postModel.find({ subject_id: subjectId });
+        const posts = await postModel.find({ reviewedSubject: subjectId });
 
         res.status(200).json(posts);
     }

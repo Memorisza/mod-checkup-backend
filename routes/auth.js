@@ -13,27 +13,27 @@ router.get('/google',
 
 router.get('/google/callback', 
     passport.authenticate('google', {
-        successRedirect: '/auth/success',
-        failureRedirect: '/auth/failure'
+        successRedirect: '/api/auth/success',
+        failureRedirect: '/api/auth/failure'
     })
 )
 
 router.get('/login', (req, res) => {
-    res.send('<a href="/auth/google">Click to OAuth login with Google</a>')
+    //This will be deprecated since the connection will be from frontend
+    res.send('<a href="/api/auth/google">Click to OAuth login with Google</a>')
 })
 
-router.get('/logout', (req, res) => {
+router.get('/logout', isLoggedIn, (req, res) => {
     req.logout();
-    res.send('Goodbye!')
+    res.redirect('/logout/success')
 })
 
 router.get('/success', isLoggedIn , (req, res) => {
-    console.log(req.user);
-    res.send(`Welcome ${req.user.emails} <br> <a href="/auth/logout">Logout</a>`)
+    res.redirect('/auth/success')
 })
 
 router.get('/failure', (req, res) =>{
-    res.send('Fail to authen.')
+    res.redirect('/auth/failure')
 })
 
 export default router;
