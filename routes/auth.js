@@ -27,7 +27,7 @@ router.get('/login', (req, res) => {
 
 router.get('/logout', isLoggedIn, (req, res) => {
     req.logout();
-    res.redirect('/logout/success')
+    res.redirect(process.env.FRONT_APP_URL + '/auth/logout/success')
 })
 
 export default router;
