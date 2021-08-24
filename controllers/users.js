@@ -30,7 +30,7 @@ export const createUser = async (req, res) => {
 
 export const findUserById = async (req, res) => {
     try{
-        const user = await userModel.findById(req.params.id);
+        const user = await userModel.findById(req.params.userId);
 
         res.status(200).json(user);
     }

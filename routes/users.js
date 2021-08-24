@@ -5,8 +5,7 @@ import { createUser, findUserById, getAllUsers, updateUser } from '../controller
 const router = express.Router();
 
 router.get('/', getAllUsers);
-router.post('/create', createUser);
-router.get('/:id', findUserById);
-router.put('/:id', updateUser);
+router.get('/:userId', findUserById);
+// router.put('/:id', updateUser);
 
 export default router;

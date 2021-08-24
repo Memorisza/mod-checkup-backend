@@ -109,3 +109,13 @@ export const softDeletePost = async (req, res) => {
 
     res.json(updatedPost);    
 }
+
+export const getPostsByUserId = async (req, res) => {
+    const { userId } = req.params;
+
+    if(!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).send('No user with that id.');
+
+    const updatedPost = await postModel.find({reviewer: userId});
+
+    res.json(updatedPost);    
+}
