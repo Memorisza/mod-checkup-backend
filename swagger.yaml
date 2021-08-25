@@ -566,9 +566,6 @@ definitions:
   Subject:
     type: "object"
     properties:
-      _id:
-        type: "string"
-        description: "Id based on mongoose ObjectId"
       subject_abbr:
         type: "string"
         description: "Subject Abbreviation (FDM012)"
@@ -578,6 +575,9 @@ definitions:
       average_rating:
         type: "number"
         description: "Average rating of subject"
+    required:
+      - subject_abbr
+      - subject_name
   User:
     type: "object"
     properties:
@@ -603,3 +603,9 @@ definitions:
         - "Student"
         - "Teacher"
         - "Admin"
+    required:
+      - googleId
+      - displayName
+      - firstName
+      - lastName
+      - email
