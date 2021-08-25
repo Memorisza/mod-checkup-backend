@@ -11,6 +11,7 @@ import reviewRouter from './routes/reviews.js'
 import subjectRouter from './routes/subjects.js'
 import userRouter from './routes/users.js'
 import authRouter from './routes/auth.js'
+import commentRouter from './routes/comments.js'
 
 import './controllers/auth.js'
 
@@ -49,6 +50,7 @@ app.use('/api/reviews', reviewRouter);
 app.use('/api/subjects', subjectRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/comments', commentRouter);
 
 //Swagger Ui
 const swaggerDocument = YAML.load('./swagger.yaml');
