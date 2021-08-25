@@ -8,6 +8,8 @@ basePath: "/api"
 tags:
 - name: "reviews"
   description: "About reviews"
+- name: "comments"
+  description: "Spice things up with comments"
 - name: "subjects"
   description: "Access to mod-checkup subjects"
 - name: "users"
@@ -37,10 +39,10 @@ paths:
         schema:
           $ref: "#/definitions/Post"
       responses:
-        "200":
+        "201":
           description: "The created object will be returned"
-        "405":
-          description: "Invalid input"
+        "409":
+          description: "Something went wrong"
     get:
       tags:
       - "reviews"
@@ -126,6 +128,27 @@ paths:
           description: "The updated object will be returned"
         "404":
           description: "Post not found"
+  /reviews/{postId}/comments:
+    get:
+      tags:
+      - "reviews"
+      summary: "Get all comments of specified review"
+      operationId: "getCommentsByPostId"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "ID of post view comments"
+        required: true
+      responses:
+        "200":
+          description: "All of the comments of specified review will be returned"
+        "404":
+          description: "Post not found"
   /reviews/{postId}/like:
     patch:
       tags:
@@ -189,6 +212,94 @@ paths:
           description: "All of that user's posts will be returned"
         "404":
           description: "Not found"
+  /comments:
+    post:
+      tags:
+      - "comments"
+      summary: "Create a new comment"
+      operationId: "addNewComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "Comment information to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Comment"
+      responses:
+        "201":
+          description: "Created comment will be returned"
+        "409":
+          description: "Something went wrong"
+  /comments/{commentId}:
+    get:
+      tags:
+      - "comments"
+      summary: "Get a specified comment"
+      operationId: "getCommentById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "Specified Comment ID"
+        required: true
+      responses:
+        "200":
+          description: "Specified comment will be returned"
+        "404":
+          description: "Not Found"
+    put:
+      tags:
+      - "comments"
+      summary: "Update specified comment"
+      operationId: "editComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "Specified Comment ID"
+        required: true
+      - name: "body"
+        in: "body"
+        description: "Comment detail to update"
+        schema:
+          $ref: "#/definitions/Comment"
+      responses:
+        "200":
+          description: "Specified comment will be returned"
+        "404":
+          description: "Not Found"
+    delete:
+      tags:
+      - "comments"
+      summary: "Soft delete a comment"
+      operationId: "softDeleteComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "Specified Comment ID"
+        required: true
+      responses:
+        "200":
+          description: "Deleted comment will be returned"
+        "404":
+          description: "Not Found"
   /subjects:
     post:
       tags:
@@ -207,10 +318,10 @@ paths:
         schema:
           $ref: "#/definitions/Subject"
       responses:
-        "200":
+        "201":
           description: "Created subject will be returned"
-        "404":
-          description: "Not Found"
+        "409":
+          description: "Something went wrong"
     get:
       tags:
       - "subjects"
@@ -229,8 +340,8 @@ paths:
     get:
       tags:
       - "subjects"
-      summary: "Get subject info and all reviews by subject"
-      operationId: "getSubjectAllInfoAndPosts"
+      summary: "Get subject info by subject"
+      operationId: "getSubjectInfo"
       consumes:
       - "application/json"
       produces:
@@ -243,7 +354,7 @@ paths:
         required: true
       responses:
         "200":
-          description: "Specified subject's infos and reviews will be returned"
+          description: "Specified subject's infos will be returned"
         "404":
           description: "Not Found"
     put:
@@ -270,6 +381,27 @@ paths:
       responses:
         "200":
           description: "Updated subject"
+        "404":
+          description: "Not Found"
+  /subjects/{subjectAbbr}/posts:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all specified subject's reviews"
+      operationId: "getPostBySubject"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      responses:
+        "200":
+          description: "Specified subject's reviews will be returned"
         "404":
           description: "Not Found"
   /users:
@@ -407,6 +539,30 @@ definitions:
       - semester
       - reviewer
       - reviewedSubject
+  Comment:
+    type: "object"
+    properties:
+      comment_detail:
+        type: "string"
+        description: "Comment Detail"
+      basePost:
+        type: "string"
+        description: "Mongoose ID of the base post"
+      like_rating:
+        type: "integer"
+        default: 0
+        description: "In case of using the old data"
+      dislike_rating:
+        default: 0
+        type: "integer"
+        description: "In case of using the old data"
+      active:
+        type: "boolean"
+        default: true
+        description: "Active status (0 when soft deleted)"
+    required:
+      - comment_detail
+      - basePost
   Subject:
     type: "object"
     properties:
@@ -447,20 +603,3 @@ definitions:
         - "Student"
         - "Teacher"
         - "Admin"
-  Comment:
-    type: "object"
-    properties:
-      comment_detail:
-        type: "string"
-        description: "The review's detail"
-      base_post:
-        type: "string"
-        description: "The id of the post this comment based on"
-      like_rating:
-        type: "integer"
-        default: 0
-        description: "In case of using the old data"
-      dislike_rating:
-        default: 0
-        type: "integer"
-        description: "In case of using the old data"

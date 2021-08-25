@@ -1,6 +1,7 @@
 import express from 'express'
+import { getPostBySubject } from '../controllers/posts.js';
 
-import { getAllSubjects, addSubject, viewSubject, updateSubject, getSubjectAllInfoAndPosts} from '../controllers/subjects.js'
+import { getAllSubjects, addSubject, updateSubject, getSubjectInfo} from '../controllers/subjects.js'
 
 const router = express.Router();
 
@@ -12,8 +13,9 @@ const router = express.Router();
 
 router.get('/', getAllSubjects);
 router.post('/', addSubject);
-router.get('/:subject', getSubjectAllInfoAndPosts);
+router.get('/:subject', getSubjectInfo);
 router.put('/:subject', updateSubject);
+router.get('/:subject/posts', getPostBySubject);
 
 
 export default router;
