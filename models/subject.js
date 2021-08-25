@@ -3,9 +3,6 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema;
 
 const subjectSchema = new Schema({
-    _id:{
-        type: String
-    },
     subject_abbr: {
         type: String,
         required: true,
