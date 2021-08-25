@@ -28,17 +28,6 @@ export const addSubject = async (req, res) => {
     }
 }
 
-export const viewSubject = async (req, res) => {
-    const { subject: _subject } = req.params;
-    try{
-        const subject = await subjectModel.findOne({ subject_abbr: _subject });
-        res.status(200).json(subject);
-    }
-    catch(err){
-        res.status(404).json({ message: err.message });
-    }
-}
-
 export const updateSubject = async (req, res) => {
     const { subject: subject } = req.params;
     const subjectContent = req.body;
@@ -52,19 +41,13 @@ export const updateSubject = async (req, res) => {
     }    
 }
 
-export const getSubjectAllInfoAndPosts = async (req , res) => {
+export const getSubjectInfo = async (req , res) => {
     const { subject: _subject } = req.params;
 
     try{
         const foundSubject = await subjectModel.findOne({ subject_abbr: _subject });
-        const posts = await postModel.find({ reviewedSubject: foundSubject });
-
-        const tempWrapper = {
-            subjectInfo: foundSubject,
-            reviews: posts
-        }
         
-        res.status(200).json(tempWrapper);
+        res.status(200).json(foundSubject);
     }
     catch(err){
         res.status(404).json({ message: err.message });

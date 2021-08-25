@@ -19,6 +19,10 @@ const commentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'review',
         required: true
+    },
+    active:{
+        type: Boolean,
+        default: true
     }
 },{
     timestamps: true
