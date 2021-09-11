@@ -1,21 +1,20 @@
 import express from 'express'
 import { getPostBySubject } from '../controllers/posts.js';
-
 import { getAllSubjects, addSubject, updateSubject, getSubjectInfo} from '../controllers/subjects.js'
+import checkAuthorize from '../_helpers/checkAuthorize.js'
+import Role from '../_helpers/role.js'
 
 const router = express.Router();
 
-// Old Routing
-// router.get('/', getSubjects);
-// router.post('/', addSubject);
-// router.get('/:subject', viewSubject);
-// router.put('/:subject', updateSubject);
-
+//Everyone Access
 router.get('/', getAllSubjects);
-router.post('/', addSubject);
 router.get('/:subject', getSubjectInfo);
-router.put('/:subject', updateSubject);
 router.get('/:subject/posts', getPostBySubject);
+
+//Teacher & Admin Access
+router.post('/', checkAuthorize(Role.Admin, Role.Teacher), addSubject);
+router.put('/:subject', checkAuthorize(Role.Admin, Role.Teacher), updateSubject);
+
 
 
 export default router;

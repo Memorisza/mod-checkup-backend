@@ -1,13 +1,10 @@
 import express from 'express';
 import passport from 'passport';
 import dotenv from 'dotenv';
+import checkAuthorize from '../_helpers/checkAuthorize.js'
 
 dotenv.config();
 const router = express.Router();
-
-function isLoggedIn (req, res, next){
-    req.user ? next() :  res.sendStatus(401);
-}
 
 router.get('/google', 
     passport.authenticate('google', { scope: ['email', 'profile'] })
@@ -25,7 +22,8 @@ router.get('/login', (req, res) => {
     res.send('<a href="/api/auth/google">Click to OAuth login with Google</a>')
 })
 
-router.get('/logout', isLoggedIn, (req, res) => {
+//Require Login
+router.get('/logout', checkAuthorize(), (req, res) => {
     req.logout();
     res.redirect(process.env.FRONT_APP_URL + '/auth/logout/success')
 })
