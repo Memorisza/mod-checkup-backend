@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import postModel from '../models/post.js'
 import subjectModel from '../models/subject.js'
+import userModel from '../models/user.js'
 
 export const getAllPosts = async (req, res) => {
     try{
@@ -30,8 +31,16 @@ export const createPost = async (req, res) => {
     const newPost = new postModel(postBody);
 
     try{
-        await newPost.save();
-        res.status(201).json(newPost);
+        const foundUser = await userModel.findById(newPost.reviewer);
+        const foundSubject = await subjectModel.findById(newPost.reviewedSubject)
+
+        if(foundUser != null && foundSubject != null){
+            await newPost.save();
+            res.status(201).json(newPost);
+        }        
+        else{
+            res.status(409).json({ message: "There is no user or subject to be assigned." });
+        }
     }
     catch(err){
         res.status(409).json({ message: err.message })
@@ -91,7 +100,7 @@ export const getPostBySubject = async (req, res) => {
     
     try{
         const subjectId = await subjectModel.findOne({subject_abbr: _subject})
-        const posts = await postModel.find({ reviewedSubject: subjectId });
+        const posts = await postModel.find({ reviewedSubject: subjectId }).sort({createdAt: 'desc'});
 
         res.status(200).json(posts);
     }

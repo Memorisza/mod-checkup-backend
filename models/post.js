@@ -38,17 +38,14 @@ const postSchema = new Schema({
         required: true,
     },
     //With Default
-    like_rating: {
-        type: Number,
-        default: 0,
-    },
-    dislike_rating: {
-        type: Number,
-        default: 0,
-    },
     active: {
         type: Boolean,
         default: true
+    },
+    identity_hidden:{
+        type: Boolean,
+        required: true,
+        default: false
     },
     //Optional
     review_teacher:{

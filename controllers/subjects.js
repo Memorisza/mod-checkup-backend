@@ -19,9 +19,17 @@ export const addSubject = async (req, res) => {
     const newSubject = new subjectModel(subjectBody);
 
     try{
-        await newSubject.save();
 
-        res.status(201).json(newSubject);
+        const dupSubjectAbbr = subjectModel.find({ subject_abbr: newSubject.subject_abbr });
+        const dupSubjectName = subjectModel.find({ subject_name: newSubject.subject_name });
+
+        if(dupSubjectAbbr == null && dupSubjectName == null){
+            await newSubject.save();
+            res.status(201).json(newSubject);
+        }      
+        else{
+            res.status(409).json({ message: "The entity is already existed."});
+        }        
     }
     catch(err){
         res.status(409).json({ message: err.message });
