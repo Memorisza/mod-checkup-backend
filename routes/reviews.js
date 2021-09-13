@@ -1,18 +1,22 @@
 import express from 'express'
-
 import { getActiveCommentsByPostId } from '../controllers/comments.js';
 import { createPost, getPostById, updatePost, likePost, dislikePost, softDeletePost, getActivePosts, getPostsByUserId } from '../controllers/posts.js'
+import checkAuthorize from '../_helpers/checkAuthorize.js'
+import Role from '../_helpers/role.js'
 
 const router = express.Router();
 
+//Everyone Access
 router.get('/', getActivePosts);
 router.get('/:postId', getPostById);
-router.post('/', createPost);
-router.put('/:postId', updatePost);
 router.get('/:postId/comments', getActiveCommentsByPostId);
-router.patch('/:postId/like', likePost);
-router.patch('/:postId/dislike', dislikePost);
-router.delete('/:postId', softDeletePost);
-router.get('/history/:userId', getPostsByUserId);
+
+//Student Access
+router.post('/', checkAuthorize(Role.Student), createPost);
+router.put('/:postId', checkAuthorize(Role.Student), updatePost);
+router.patch('/:postId/like', checkAuthorize(Role.Student), likePost);
+router.patch('/:postId/dislike', checkAuthorize(Role.Student), dislikePost);
+router.delete('/:postId', checkAuthorize(Role.Student), softDeletePost);
+router.get('/history/:userId', checkAuthorize(Role.Student), getPostsByUserId);
 
 export default router;
