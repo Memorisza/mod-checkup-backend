@@ -60,3 +60,7 @@ export const updateUser = async (req, res) => {
 
     res.json(updatedUser);
 }
+
+export const getCurrentUser = async (req, res) => {
+    res.send(req.user);
+}

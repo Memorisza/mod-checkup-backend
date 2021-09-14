@@ -439,6 +439,21 @@ paths:
           description: "Specified user's info will be returned"
         "404":
           description: "Not Found"
+  /users/current:
+    get:
+      tags:
+      - "users"
+      summary: "Get current user info"
+      operationId: "getCurrentUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Current user's info will be returned"
+        "401":
+          description: "Unauthorized access"
   /auth/google:
     get:
       tags:

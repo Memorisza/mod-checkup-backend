@@ -13,7 +13,7 @@ import userRouter from './routes/users.js'
 import authRouter from './routes/auth.js'
 import commentRouter from './routes/comments.js'
 
-import './controllers/auth.js'
+import './controllers/passport.js'
 
 dotenv.config()
 
