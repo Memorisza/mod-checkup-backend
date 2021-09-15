@@ -3,15 +3,20 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const likeTableSchema = new Schema({
-    liked_entity:{
+    like_entity:{
         type: Schema.Types.ObjectId,
-        ref: 'user',
         required: true,
+        refPath: 'entityModel'
     },
     like_owner:{
         type: Schema.Types.ObjectId,
         ref: 'user',
         required: true,
+    },
+    entityModel:{
+        type: String,
+        required: true,
+        enum: ['review', 'comment']
     },
     //With Default
     active: {
@@ -19,3 +24,6 @@ const likeTableSchema = new Schema({
         default: true
     },
 })
+
+const likeModel = mongoose.model('likeTable', likeTableSchema);
+export default likeModel;

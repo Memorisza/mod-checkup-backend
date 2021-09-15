@@ -167,7 +167,7 @@ paths:
         required: true
       responses:
         "200":
-          description: "The updated object will be returned"
+          description: "The likeTable will be returned"
         "404":
           description: "Post not found"
   /reviews/{postId}/dislike:
@@ -188,7 +188,7 @@ paths:
         required: true
       responses:
         "200":
-          description: "The updated object will be returned"
+          description: "The dislikeTable will be returned"
         "404":
           description: "Post not found"
   /reviews/history/{userId}:
@@ -234,6 +234,28 @@ paths:
           description: "Created comment will be returned"
         "409":
           description: "Something went wrong"
+  /comments/{postId}/comments:
+    get:
+      tags:
+      - "comments"
+      summary: "Get all active comments by Post"
+      operationId: "getActiveCommentsByPostId"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "Specified Post ID"
+        required: true
+      responses:
+        "200":
+          description: "All active comments of the post will be returned"
+        "404":
+          description: "Not Found"
+      
   /comments/{commentId}:
     get:
       tags:
@@ -300,6 +322,48 @@ paths:
           description: "Deleted comment will be returned"
         "404":
           description: "Not Found"
+  /comments/{commentId}/like:
+    patch:
+      tags:
+      - "comments"
+      summary: "Give a like to the review"
+      operationId: "likeComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "ID of post to give a like"
+        required: true
+      responses:
+        "200":
+          description: "The likeTable will be returned"
+        "404":
+          description: "Post not found"
+  /comments/{commentId}/dislike:
+    patch:
+      tags:
+      - "comments"
+      summary: "Give a dislike to the review"
+      operationId: "dislikeComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "ID of post to give a dislike"
+        required: true
+      responses:
+        "200":
+          description: "The dislikeTable will be returned"
+        "404":
+          description: "Post not found"
   /subjects:
     post:
       tags:
@@ -524,14 +588,6 @@ definitions:
       reviewedSubject:
         type: "string"
         description: "Id of the subject"
-      like_rating:
-        type: "integer"
-        default: 0
-        description: "In case of using the old data"
-      dislike_rating:
-        default: 0
-        type: "integer"
-        description: "In case of using the old data"
       active:
         type: "boolean"
         default: true
@@ -563,14 +619,9 @@ definitions:
       basePost:
         type: "string"
         description: "Mongoose ID of the base post"
-      like_rating:
-        type: "integer"
-        default: 0
-        description: "In case of using the old data"
-      dislike_rating:
-        default: 0
-        type: "integer"
-        description: "In case of using the old data"
+      commenter:
+        type: "string"
+        description: "Mongoose ID of the commenter (UserID)"
       active:
         type: "boolean"
         default: true
@@ -593,6 +644,52 @@ definitions:
     required:
       - subject_abbr
       - subject_name
+  LikeTable:
+    type: "object"
+    properties:
+      like_entity:
+        type: "string"
+        description: "ID of the entity (Review or Comment)"
+        enum:
+        - "review"
+        - "comment"
+      like_owner:
+        type: "string"
+        description: "ID of the liker (UserID)"
+      entityModel:
+        type: "string"
+        description: "Type of the entity (Review or comment)"
+      active:
+        type: "boolean"
+        default: "true"
+        description: "Active status"
+    required:
+      - like_entity
+      - like_owner
+      - entityModel
+  DislikeTable:
+    type: "object"
+    properties:
+      dislike_entity:
+        type: "string"
+        description: "ID of the entity (Review or Comment)"
+        enum:
+        - "review"
+        - "comment"
+      dislike_owner:
+        type: "string"
+        description: "ID of the liker (UserID)"
+      entityModel:
+        type: "string"
+        description: "Type of the entity (Review or comment)"
+      active:
+        type: "boolean"
+        default: "true"
+        description: "Active status"
+    required:
+      - dislike_entity
+      - dislike_owner
+      - entityModel
   User:
     type: "object"
     properties:
@@ -611,7 +708,7 @@ definitions:
         description: "Image URL from google"
       email:
         type: "string"
-      owner_role:
+      role:
         type: "string"
         description: "Account Role"
         enum: 
