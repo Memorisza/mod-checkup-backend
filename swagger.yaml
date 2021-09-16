@@ -562,6 +562,7 @@ definitions:
         - "D+"
         - "D"
         - "F"
+        - "W"
       teacher_rating:
         type: "integer"
         format: "int32"
@@ -592,6 +593,10 @@ definitions:
         type: "boolean"
         default: true
         description: "Active status (0 when soft deleted)"
+      identity_hidden:
+        type: "boolean"
+        default: false
+        description: "Hidden identity or not (1 yes 0 no)"
       review_teacher:
         type: "string"
         description: "Id of teacher"
