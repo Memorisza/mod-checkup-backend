@@ -6,18 +6,25 @@ const postSchema = new Schema({
     grade_received: {
         type: String,
         required: true,
+        enum: [ 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F', 'W' ]
     },
     teacher_rating: {
         type: Number,
         required: true,
+        max: 5,
+        min: 0
     },
     usefulness_rating: {
         type: Number,
         required: true,
+        max: 5,
+        min: 0
     },
     participation_rating: {
         type: Number,
         required: true,
+        max: 5,
+        min: 0
     },
     academic_year: {
         type: Number,
@@ -26,6 +33,8 @@ const postSchema = new Schema({
     semester: {
         type: Number,
         required: true,
+        min: 0,
+        max: 3
     },
     reviewer: {
         type: Schema.Types.ObjectId,
