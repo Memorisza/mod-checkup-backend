@@ -6,7 +6,7 @@ const router = express.Router();
 
 //Everyone Access
 router.get('/:commentId', getCommentById);
-router.get('/:postId/comments', getActiveCommentsByPostId);
+router.get('/post/:postId', getActiveCommentsByPostId);
 
 //Require Login
 router.post('/', checkAuthorize(), addNewComment);

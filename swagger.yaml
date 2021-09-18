@@ -234,7 +234,7 @@ paths:
           description: "Created comment will be returned"
         "409":
           description: "Something went wrong"
-  /comments/{postId}/comments:
+  /comments/post/{postId}/:
     get:
       tags:
       - "comments"
