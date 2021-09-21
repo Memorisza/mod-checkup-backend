@@ -18,7 +18,9 @@ export const getAllPosts = async (req, res) => {
 
 export const getActivePosts = async (req, res) => {
     try {
-        const posts = await postModel.find({ active: true }).populate('reviewedSubject', 'subject_abbr subject_name').sort({ createdAt: 'desc' });
+        const posts = await postModel.find({ active: true })
+        .populate('reviewedSubject', 'subject_abbr subject_name')
+        .sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
@@ -202,7 +204,9 @@ export const getPostBySubject = async (req, res) => {
 
     try {
         const subjectId = await subjectModel.findOne({ subject_abbr: _subject })
-        const posts = await postModel.find({ reviewedSubject: subjectId, active:true }).sort({ createdAt: 'desc' });
+        const posts = await postModel.find({ reviewedSubject: subjectId, active:true })
+                                            .populate('reviewedSubject', 'subject_abbr subject_name')
+                                            .sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
@@ -226,7 +230,9 @@ export const getPostsByUserId = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).send('No user with that id.');
 
-    const updatedPost = await postModel.find({ reviewer: userId });
+    const updatedPost = await postModel.find({ reviewer: userId })
+    .populate('reviewedSubject', 'subject_abbr subject_name')
+    .sort({ createdAt: 'desc' });
 
     res.json(updatedPost);
 }

@@ -6,7 +6,8 @@ const subjectSchema = new Schema({
     subject_abbr: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        max: 7
     },
     subject_name: {
         type: String,
