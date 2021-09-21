@@ -31,7 +31,9 @@ export const createUser = async (req, res) => {
 export const findUserById = async (req, res) => {
     try{
         const user = await userModel.findById(req.params.userId);
-
+        if(!user){
+            res.status(404).json();
+        }
         res.status(200).json(user);
     }
     catch(err){
@@ -42,7 +44,9 @@ export const findUserById = async (req, res) => {
 export const findUserByGoogleId = async (req, res) => {
     try{
         const user = await userModel.findOne({ google_id: req.params.google_id });
-
+        if(!user){
+            res.status(404).json();
+        }
         res.status(200).json(user);
     }
     catch(err){
@@ -56,9 +60,13 @@ export const updateUser = async (req, res) => {
 
     if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No user with that id.');
 
-    const updatedUser = await userModel.findByIdAndUpdate(_id, { ... user, _id}, { new: true });
-
-    res.json(updatedUser);
+    try{
+        const updatedUser = await userModel.findByIdAndUpdate(_id, { ... user, _id}, { new: true });
+        res.status(200).json(updatedUser);
+    }
+    catch(err){
+        res.status(409).json({ message: err.message })
+    }    
 }
 
 export const getCurrentUser = async (req, res) => {

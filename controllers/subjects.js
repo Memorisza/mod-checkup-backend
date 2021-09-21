@@ -20,8 +20,8 @@ export const addSubject = async (req, res) => {
 
     try{
 
-        const dupSubjectAbbr = subjectModel.find({ subject_abbr: newSubject.subject_abbr });
-        const dupSubjectName = subjectModel.find({ subject_name: newSubject.subject_name });
+        const dupSubjectAbbr = subjectModel.find({ subject_abbr: newSubject.subject_abbr, active: true });
+        const dupSubjectName = subjectModel.find({ subject_name: newSubject.subject_name, active: true });
 
         if(dupSubjectAbbr == null && dupSubjectName == null){
             await newSubject.save();
@@ -41,8 +41,7 @@ export const updateSubject = async (req, res) => {
     const subjectContent = req.body;
     try{
         const updatedSubject = await subjectModel.findOneAndUpdate({ subject_abbr: subject }, { ... subjectContent}, { new: true })
-        res.json(updatedSubject);
-        res.json(subjectId);
+        res.status(200).json(updatedSubject);
     }
     catch(err){
         res.status(404).json({ message: err.message });
@@ -54,7 +53,9 @@ export const getSubjectInfo = async (req , res) => {
 
     try{
         const foundSubject = await subjectModel.findOne({ subject_abbr: _subject });
-        
+        if(foundSubject == null){
+            res.status(404).json();
+        }
         res.status(200).json(foundSubject);
     }
     catch(err){

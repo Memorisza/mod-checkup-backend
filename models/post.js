@@ -53,20 +53,19 @@ const postSchema = new Schema({
     },
     identity_hidden:{
         type: Boolean,
-        required: true,
         default: false
     },
     //Optional
-    review_teacher:{
-        type: Schema.Types.ObjectId,
-        ref: 'user',
-    },
     review_detail:{
         type: String,
     },
     section:{
         type: String,
     },
+    force:{
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true,
 });
