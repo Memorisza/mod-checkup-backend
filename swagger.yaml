@@ -597,15 +597,15 @@ definitions:
         type: "boolean"
         default: false
         description: "Hidden identity or not (1 yes 0 no)"
-      review_teacher:
-        type: "string"
-        description: "Id of teacher"
       review_detail:
         type: "string"
         description: "Review's details"
       section:
         type: "string"
         description: "Section that the reviewer is in"
+      force:
+        type: "boolean"
+        description: "Force using the function"
     required:
       - grade_received
       - teacher_rating
@@ -646,6 +646,8 @@ definitions:
       average_rating:
         type: "number"
         description: "Average rating of subject"
+        minimum: 0
+        maximum: 5
     required:
       - subject_abbr
       - subject_name
