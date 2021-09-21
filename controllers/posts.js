@@ -18,7 +18,7 @@ export const getAllPosts = async (req, res) => {
 
 export const getActivePosts = async (req, res) => {
     try {
-        const posts = await postModel.find({ active: true }).sort({ createdAt: 'desc' });
+        const posts = await postModel.find({ active: true }).populate('reviewedSubject', 'subject_abbr subject_name').sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
@@ -40,9 +40,14 @@ export const createPost = async (req, res) => {
         if (foundUser == null && foundSubject == null) {
             res.status(409).json({ message: "There is no user or subject to be assigned." });
         }
+        //Force create (For testing)
+        else if(newPost.force == true){
+            await newPost.save();
+            res.status(201).json(newPost);
+        }
         else {
             //Check for user's same subject review
-            const dupReview = await postModel.find({ reviewer: newPost.reviewer, reviewedSubject: newPost.reviewedSubject });
+            const dupReview = await postModel.find({ reviewer: newPost.reviewer, reviewedSubject: newPost.reviewedSubject, active: true });
             if (dupReview.length === 0) {
                 await newPost.save();
                 res.status(201).json(newPost);
@@ -87,16 +92,26 @@ export const getPostById = async (req, res) => {
 }
 
 export const updatePost = async (req, res) => {
-    const { postId: _id } = req.params;
-    const post = req.body;
+    const { postId } = req.params;
+    const newPost = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id.');
+    if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(404).send('No post with that id.');
 
-    //TODOS - Data Validation
-
-    const updatedPost = await postModel.findByIdAndUpdate(_id, { ...post, _id }, { new: true });
-
-    res.json(updatedPost);
+    //Check data validity
+    try{
+        const foundUser = await userModel.findById(newPost.reviewer);
+        const foundSubject = await subjectModel.findById(newPost.reviewedSubject);
+        if (foundUser == null && foundSubject == null) {
+            res.status(409).json({ message: "There is no user or subject to be assigned." });
+        }
+        else{
+            const updatedPost = await postModel.findByIdAndUpdate(postId, { ... newPost, postId }, { new: true });
+            res.status(200).json(updatedPost);
+        }
+    }
+    catch(err){
+        res.status(409).json({ message: err.message });
+    }    
 }
 
 export const likePost = async (req, res) => {
@@ -187,7 +202,7 @@ export const getPostBySubject = async (req, res) => {
 
     try {
         const subjectId = await subjectModel.findOne({ subject_abbr: _subject })
-        const posts = await postModel.find({ reviewedSubject: subjectId }).sort({ createdAt: 'desc' });
+        const posts = await postModel.find({ reviewedSubject: subjectId, active:true }).sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
