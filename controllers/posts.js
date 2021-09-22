@@ -80,7 +80,7 @@ export const createPost = async (req, res) => {
 
 export const getPostById = async (req, res) => {
     try {
-        const post = await postModel.findById(req.params.postId);
+        const post = await postModel.findById(req.params.postId).populate('reviewedSubject', 'subject_abbr subject_name');
 
         if (post == null) {
             res.status(404).json();
