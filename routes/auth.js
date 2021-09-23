@@ -12,15 +12,10 @@ router.get('/google',
 
 router.get('/google/callback', 
     passport.authenticate('google', {
-        successRedirect: process.env.FRONT_APP_URL + '/auth/success',
+        successRedirect: process.env.FRONT_APP_URL ,
         failureRedirect: process.env.FRONT_APP_URL + '/auth/failure'
     })
 )
-
-router.get('/login', (req, res) => {
-    //This will be deprecated since the connection will be from frontend
-    res.send('<a href="/api/auth/google">Click to OAuth login with Google</a>')
-})
 
 //Require Login
 router.get('/logout', checkAuthorize(), (req, res) => {

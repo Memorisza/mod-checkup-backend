@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 import passport from 'passport'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
+import morgan from 'morgan'
 
 import reviewRouter from './routes/reviews.js'
 import subjectRouter from './routes/subjects.js'
@@ -20,8 +21,9 @@ dotenv.config()
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+app.use(cors({credentials: true, origin:['http://localhost', 'http://20.190.72.211']}));
 app.use(express.json())
+app.use(morgan('dev'))
 
 //Mongo DB
 const uri = process.env.ATLAS_URI;
@@ -35,7 +37,7 @@ connection.once('open', () => {
 
 //Passport JS
 app.use(session({ secret: process.env.EX_SESSION_SCR,
-                //   name: 'mcu-said',
+                  name: 'mcu-said',
                   resave: true,
                   saveUninitialized: false, 
                   cookie: {
