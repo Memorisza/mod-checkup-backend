@@ -6,26 +6,25 @@ const postSchema = new Schema({
     grade_received: {
         type: String,
         required: true,
+        enum: [ 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F', 'W' ]
     },
     teacher_rating: {
         type: Number,
         required: true,
+        max: 5,
+        min: 0
     },
     usefulness_rating: {
         type: Number,
         required: true,
+        max: 5,
+        min: 0
     },
     participation_rating: {
         type: Number,
         required: true,
-    },
-    like_rating: {
-        type: Number,
-        default: 0,
-    },
-    dislike_rating: {
-        type: Number,
-        default: 0,
+        max: 5,
+        min: 0
     },
     academic_year: {
         type: Number,
@@ -34,25 +33,39 @@ const postSchema = new Schema({
     semester: {
         type: Number,
         required: true,
+        min: 0,
+        max: 3
     },
-    student_id: {
-        type: String,
+    reviewer: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
         required: true,
     },
-    subject_id: {
-        type: String,
+    reviewedSubject: {
+        type: Schema.Types.ObjectId,
+        ref: 'subject',
         required: true,
+    },
+    //With Default
+    active: {
+        type: Boolean,
+        default: true
+    },
+    identity_hidden:{
+        type: Boolean,
+        default: false
     },
     //Optional
-    teacher_id:{
-        type: String,
-    },
     review_detail:{
         type: String,
     },
     section:{
         type: String,
     },
+    force:{
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true,
 });

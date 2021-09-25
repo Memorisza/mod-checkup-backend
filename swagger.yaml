@@ -1,0 +1,730 @@
+swagger: "2.0"
+info:
+  description: "This is a sample doc for mod-checkup.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters."
+  version: "1.7.3"
+  title: "Mod-Shutup API Docs"
+host: "localhost:5000"
+basePath: "/api"
+tags:
+- name: "reviews"
+  description: "About reviews"
+- name: "comments"
+  description: "Spice things up with comments"
+- name: "subjects"
+  description: "Access to mod-checkup subjects"
+- name: "users"
+  description: "Operations about user"
+- name: "auth"
+  description: "About logging into the site"
+schemes:
+- "http"
+- "https"
+paths:
+  /reviews:
+    post:
+      tags:
+      - "reviews"
+      summary: "Create a new review."
+      description: ""
+      operationId: "createPost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Review(Post) object that needs to be added to the website"
+        required: true
+        schema:
+          $ref: "#/definitions/Post"
+      responses:
+        "201":
+          description: "The created object will be returned"
+        "409":
+          description: "Something went wrong"
+    get:
+      tags:
+      - "reviews"
+      summary: "Get all active reviews"
+      operationId: "getActivePosts"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "All of the posts will be returned"
+        "404":
+          description: "Not Found"
+  /reviews/{postId}:
+    get:
+      tags:
+      - "reviews"
+      summary: "Get a specified review"
+      operationId: "getPostById"
+      consumes:
+      - "application/json"
+      produces:
+      - "appllication/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "ID of the post to view"
+        required: true
+      responses:
+        "200":
+          description: "The updated object will be returned"
+        "404":
+          description: "Post not found"
+    put:
+      tags:
+      - "reviews"
+      summary: "Update an existing review"
+      description: ""
+      operationId: "updatePost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "ID of post to edit"
+        required: true
+      - in: "body"
+        name: "body"
+        description: "Review(Post) object that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Post"
+      responses:
+        "200":
+          description: "The updated object will be returned"
+        "404":
+          description: "Post not found"
+      security:
+      - google_oauth2:
+        - "write"
+    delete:
+      tags:
+      - "reviews"
+      summary: "Soft delete a specified reviews"
+      operationId: "softDeletePost"
+      consumes:
+      - "application/json"
+      produces:
+      - "appllication/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "ID of the post to soft delete"
+        required: true
+      responses:
+        "200":
+          description: "The updated object will be returned"
+        "404":
+          description: "Post not found"
+  /reviews/{postId}/comments:
+    get:
+      tags:
+      - "reviews"
+      summary: "Get all comments of specified review"
+      operationId: "getCommentsByPostId"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "ID of post view comments"
+        required: true
+      responses:
+        "200":
+          description: "All of the comments of specified review will be returned"
+        "404":
+          description: "Post not found"
+  /reviews/{postId}/like:
+    patch:
+      tags:
+      - "reviews"
+      summary: "Give a like to the review"
+      operationId: "likePost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "ID of post to give a like"
+        required: true
+      responses:
+        "200":
+          description: "The likeTable will be returned"
+        "404":
+          description: "Post not found"
+  /reviews/{postId}/dislike:
+    patch:
+      tags:
+      - "reviews"
+      summary: "Give a dislike to the review"
+      operationId: "dislikePost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "ID of post to give a dislike"
+        required: true
+      responses:
+        "200":
+          description: "The dislikeTable will be returned"
+        "404":
+          description: "Post not found"
+  /reviews/history/{userId}:
+    get:
+      tags:
+      - "reviews"
+      summary: "Find all post by user"
+      operationId: "getPostsByUserId"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        description: "User Id to search"
+        required: true
+      responses:
+        "200":
+          description: "All of that user's posts will be returned"
+        "404":
+          description: "Not found"
+  /comments:
+    post:
+      tags:
+      - "comments"
+      summary: "Create a new comment"
+      operationId: "addNewComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "Comment information to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Comment"
+      responses:
+        "201":
+          description: "Created comment will be returned"
+        "409":
+          description: "Something went wrong"
+  /comments/post/{postId}/:
+    get:
+      tags:
+      - "comments"
+      summary: "Get all active comments by Post"
+      operationId: "getActiveCommentsByPostId"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "Specified Post ID"
+        required: true
+      responses:
+        "200":
+          description: "All active comments of the post will be returned"
+        "404":
+          description: "Not Found"
+      
+  /comments/{commentId}:
+    get:
+      tags:
+      - "comments"
+      summary: "Get a specified comment"
+      operationId: "getCommentById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "Specified Comment ID"
+        required: true
+      responses:
+        "200":
+          description: "Specified comment will be returned"
+        "404":
+          description: "Not Found"
+    put:
+      tags:
+      - "comments"
+      summary: "Update specified comment"
+      operationId: "editComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "Specified Comment ID"
+        required: true
+      - name: "body"
+        in: "body"
+        description: "Comment detail to update"
+        schema:
+          $ref: "#/definitions/Comment"
+      responses:
+        "200":
+          description: "Specified comment will be returned"
+        "404":
+          description: "Not Found"
+    delete:
+      tags:
+      - "comments"
+      summary: "Soft delete a comment"
+      operationId: "softDeleteComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "Specified Comment ID"
+        required: true
+      responses:
+        "200":
+          description: "Deleted comment will be returned"
+        "404":
+          description: "Not Found"
+  /comments/{commentId}/like:
+    patch:
+      tags:
+      - "comments"
+      summary: "Give a like to the review"
+      operationId: "likeComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "ID of post to give a like"
+        required: true
+      responses:
+        "200":
+          description: "The likeTable will be returned"
+        "404":
+          description: "Post not found"
+  /comments/{commentId}/dislike:
+    patch:
+      tags:
+      - "comments"
+      summary: "Give a dislike to the review"
+      operationId: "dislikeComment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "commentId"
+        in: "path"
+        type: "string"
+        description: "ID of post to give a dislike"
+        required: true
+      responses:
+        "200":
+          description: "The dislikeTable will be returned"
+        "404":
+          description: "Post not found"
+  /subjects:
+    post:
+      tags:
+      - "subjects"
+      summary: "Add a new subject"
+      operationId: "addSubject"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "Subject that you want to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Subject"
+      responses:
+        "201":
+          description: "Created subject will be returned"
+        "409":
+          description: "Something went wrong"
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all subjects"
+      operationId: "getAllSubjects"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "All of the subjects will be returned"
+        "404":
+          description: "Not Found"
+  /subjects/{subjectAbbr}:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get subject info by subject"
+      operationId: "getSubjectInfo"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      responses:
+        "200":
+          description: "Specified subject's infos will be returned"
+        "404":
+          description: "Not Found"
+    put:
+      tags:
+      - "subjects"
+      summary: "Update subject info"
+      operationId: "updateSubject"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      - name: "body"
+        in: "body"
+        description: "Subject that you want to update"
+        required: true
+        schema:
+          $ref: "#/definitions/Subject"
+      responses:
+        "200":
+          description: "Updated subject"
+        "404":
+          description: "Not Found"
+  /subjects/{subjectAbbr}/posts:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all specified subject's reviews"
+      operationId: "getPostBySubject"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      responses:
+        "200":
+          description: "Specified subject's reviews will be returned"
+        "404":
+          description: "Not Found"
+  /users:
+    get:
+      tags:
+      - "users"
+      summary: "Get all users"
+      operationId: "getAllUsers"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "All users will be returned"
+        "404":
+          description: "Not Found"
+  /users/{userId}:
+    get:
+      tags:
+      - "users"
+      summary: "Get specified user info"
+      operationId: "findUserById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Specified user's info will be returned"
+        "404":
+          description: "Not Found"
+  /users/current:
+    get:
+      tags:
+      - "users"
+      summary: "Get current user info"
+      operationId: "getCurrentUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Current user's info will be returned"
+        "401":
+          description: "Unauthorized access"
+  /auth/google:
+    get:
+      tags:
+      - "auth"
+      summary: "Google Authentication"
+      description: "If success will be redirected to 'FrontendURL'/auth/success , if failure will be redirected to 'FrontendURL'/auth/failure ."
+      operationId: ""
+      responses:
+        "200":
+          description: "OK"
+  /auth/logout:
+    get:
+      tags:
+      - "auth"
+      summary: "Logout then redirect to frontend"
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+securityDefinitions:
+  google_oauth2:
+    type: "oauth2"
+    authorizationUrl: "http://localhost:5000/api/auth/google"
+    flow: "implicit"
+    scopes:
+      read: "Grants read access"
+      write: "Grants write access"
+      admin: "Grants read and write access to administrative information"
+definitions:
+  Post:
+    type: "object"
+    properties:
+      grade_received:
+        type: "string"
+        description: "Grade that the reviewer received."
+        enum:
+        - "A"
+        - "B+"
+        - "B"
+        - "C+"
+        - "C"
+        - "D+"
+        - "D"
+        - "F"
+        - "W"
+      teacher_rating:
+        type: "integer"
+        format: "int32"
+        description: "Teacher Rating (0-5)"
+      usefulness_rating:
+        type: "integer"
+        format: "int32"
+        description: "Usefulness Rating (0-5)"
+      participation_rating:
+        type: "integer"
+        format: "int32"
+        description: "Participation Rating (0-5)"
+      academic_year:
+        type: "integer"
+        format: "int32"
+        description: "Academic year reference for the review"
+      semester:
+        type: "integer"
+        format: "int32"
+        description: "Semester reference for the review"
+      reviewer:
+        type: "string"
+        description: "Id of the reviewer"
+      reviewedSubject:
+        type: "string"
+        description: "Id of the subject"
+      active:
+        type: "boolean"
+        default: true
+        description: "Active status (0 when soft deleted)"
+      identity_hidden:
+        type: "boolean"
+        default: false
+        description: "Hidden identity or not (1 yes 0 no)"
+      review_detail:
+        type: "string"
+        description: "Review's details"
+      section:
+        type: "string"
+        description: "Section that the reviewer is in"
+      force:
+        type: "boolean"
+        description: "Force using the function"
+    required:
+      - grade_received
+      - teacher_rating
+      - usefulness_rating
+      - participation_rating
+      - academic_year
+      - semester
+      - reviewer
+      - reviewedSubject
+  Comment:
+    type: "object"
+    properties:
+      comment_detail:
+        type: "string"
+        description: "Comment Detail"
+      basePost:
+        type: "string"
+        description: "Mongoose ID of the base post"
+      commenter:
+        type: "string"
+        description: "Mongoose ID of the commenter (UserID)"
+      active:
+        type: "boolean"
+        default: true
+        description: "Active status (0 when soft deleted)"
+    required:
+      - comment_detail
+      - basePost
+  Subject:
+    type: "object"
+    properties:
+      subject_abbr:
+        type: "string"
+        description: "Subject Abbreviation (FDM012)"
+      subject_name:
+        type: "string"
+        description: "Subject full name (Fire Department Managing 1)"
+      average_rating:
+        type: "number"
+        description: "Average rating of subject"
+        minimum: 0
+        maximum: 5
+    required:
+      - subject_abbr
+      - subject_name
+  LikeTable:
+    type: "object"
+    properties:
+      like_entity:
+        type: "string"
+        description: "ID of the entity (Review or Comment)"
+        enum:
+        - "review"
+        - "comment"
+      like_owner:
+        type: "string"
+        description: "ID of the liker (UserID)"
+      entityModel:
+        type: "string"
+        description: "Type of the entity (Review or comment)"
+      active:
+        type: "boolean"
+        default: "true"
+        description: "Active status"
+    required:
+      - like_entity
+      - like_owner
+      - entityModel
+  DislikeTable:
+    type: "object"
+    properties:
+      dislike_entity:
+        type: "string"
+        description: "ID of the entity (Review or Comment)"
+        enum:
+        - "review"
+        - "comment"
+      dislike_owner:
+        type: "string"
+        description: "ID of the liker (UserID)"
+      entityModel:
+        type: "string"
+        description: "Type of the entity (Review or comment)"
+      active:
+        type: "boolean"
+        default: "true"
+        description: "Active status"
+    required:
+      - dislike_entity
+      - dislike_owner
+      - entityModel
+  User:
+    type: "object"
+    properties:
+      googleId:
+        type: "string"
+        description: "Google ID from KMUTT account"
+      displayName:
+        type: "string"
+        description: "Display name from google"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      image:
+        type: "string"
+        description: "Image URL from google"
+      email:
+        type: "string"
+      role:
+        type: "string"
+        description: "Account Role"
+        enum: 
+        - "Student"
+        - "Teacher"
+        - "Admin"
+    required:
+      - googleId
+      - displayName
+      - firstName
+      - lastName
+      - email

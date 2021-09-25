@@ -7,17 +7,19 @@ const commentSchema = new Schema({
         type: String,
         required: true,
     },
-    like_rating: {
-        type: Number,
-        default: 0,
+    basePost:{
+        type: Schema.Types.ObjectId,
+        ref: 'review',
+        required: true
     },
-    dislike_rating: {
-        type: Number,
-        default: 0,
+    commenter:{
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: true
     },
-    post_id:{
-        type: String,
-        required: true,
+    active:{
+        type: Boolean,
+        default: true
     }
 },{
     timestamps: true

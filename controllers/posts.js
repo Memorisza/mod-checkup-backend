@@ -1,14 +1,30 @@
 import mongoose from 'mongoose'
-import postMessage from '../models/post.js'
-import subjectMessage from '../models/subject.js';
+import postModel from '../models/post.js'
+import subjectModel from '../models/subject.js'
+import userModel from '../models/user.js'
+import likeModel from '../models/likeTable.js'
+import dislikeModel from '../models/dislikeTable.js'
 
-export const getPosts = async (req, res) => {
-    try{
-        const posts = await postMessage.find().sort({createdAt: 'desc'});
+export const getAllPosts = async (req, res) => {
+    try {
+        const posts = await postModel.find().sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
-    catch(err){
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
+export const getActivePosts = async (req, res) => {
+    try {
+        const posts = await postModel.find({ active: true })
+        .populate('reviewedSubject', 'subject_abbr subject_name')
+        .sort({ createdAt: 'desc' });
+
+        res.status(200).json(posts);
+    }
+    catch (err) {
         res.status(404).json({ message: err.message });
     }
 }
@@ -16,82 +32,207 @@ export const getPosts = async (req, res) => {
 export const createPost = async (req, res) => {
     const postBody = req.body;
 
-    const newPost = new postMessage(postBody);
+    const newPost = new postModel(postBody);
 
-    try{
-        await newPost.save();
+    try {
+        //Check for user and subject validity
+        const foundUser = await userModel.findById(newPost.reviewer);
+        const foundSubject = await subjectModel.findById(newPost.reviewedSubject)
 
-        res.status(201).json(newPost);
+        if (foundUser == null && foundSubject == null) {
+            res.status(409).json({ message: "There is no user or subject to be assigned." });
+        }
+        //Force create (For testing)
+        else if(newPost.force == true){
+            await newPost.save();
+            res.status(201).json(newPost);
+        }
+        else {
+            //Check for user's same subject review
+            const dupReview = await postModel.find({ reviewer: newPost.reviewer, reviewedSubject: newPost.reviewedSubject, active: true });
+            if (dupReview.length === 0) {
+                await newPost.save();
+                res.status(201).json(newPost);
+            }
+            else {
+                let passCount = 0;
+                dupReview.forEach(tempReview => {
+                    //Check if passed
+                    if (!(tempReview.grade_received == 'F' || tempReview.grade_received == 'W')) {
+                        passCount++;
+                    }
+                });
+                //If the reviewer has passed the subject and reviewed it already
+                if(passCount > 0){
+                    res.status(409).json({ message: "You have already reviewed this subject." })
+                }
+                else{
+                    await newPost.save();
+                    res.status(201).json(newPost);
+                }
+            }            
+        }
     }
-    catch(err){
-        console.log(err.message);
+    catch (err) {
         res.status(409).json({ message: err.message })
     }
 }
 
-export const viewPost = async (req, res) => {
-    try{
-        const post = await postMessage.findById(req.params.id);
+export const getPostById = async (req, res) => {
+    try {
+        const post = await postModel.findById(req.params.postId).populate('reviewedSubject', 'subject_abbr subject_name');
+
+        if (post == null) {
+            res.status(404).json();
+        }
 
         res.status(200).json(post);
     }
-    catch(err){
+    catch (err) {
         res.status(404).json({ message: err.message });
     }
 }
 
 export const updatePost = async (req, res) => {
-    const { id: _id } = req.params;
-    const post = req.body;
+    const { postId } = req.params;
+    const newPost = req.body;
 
-    if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id.');
+    if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(404).send('No post with that id.');
 
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, { ... post, _id}, { new: true });
-
-    res.json(updatedPost);
-}
-
-export const deletePost = async (req, res) => {
-    const { id } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No post with that id.');
-
-    await postMessage.findByIdAndRemove(id);
-
-    res.json({message: 'Post deleted successfully'});
+    //Check data validity
+    try{
+        const foundUser = await userModel.findById(newPost.reviewer);
+        const foundSubject = await subjectModel.findById(newPost.reviewedSubject);
+        if (foundUser == null && foundSubject == null) {
+            res.status(409).json({ message: "There is no user or subject to be assigned." });
+        }
+        else{
+            const updatedPost = await postModel.findByIdAndUpdate(postId, { ... newPost, postId }, { new: true });
+            res.status(200).json(updatedPost);
+        }
+    }
+    catch(err){
+        res.status(409).json({ message: err.message });
+    }    
 }
 
 export const likePost = async (req, res) => {
-    const { id: _id } = req.params;
+    const { postId } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id.');
+    if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(409).send('Invalid ID format.');
+    try {
+        //Check for validity
+        const post = await postModel.findById(postId);
+        if (post == null) {
+            res.status(404).json('Post not found.');
+        }
+        else {
+            //Check if post is liked or not
+            const foundLike = await likeModel.findOne({ like_entity: postId, like_owner: req.user.id })
+            if (foundLike == null) {
+                const newLike = await likeModel.create({
+                    like_entity: postId,
+                    like_owner: req.user.id,
+                    entityModel: 'review'
+                })
+                res.status(201).json(newLike);
+            }
+            else {
+                //If liked -> undo the like and same for the other
+                const updatedLike = await likeModel.findByIdAndUpdate(foundLike.id, { active: !foundLike.active }, { new: true });
 
-    const post = await postMessage.findById(_id);
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, { like_rating: post.like_rating + 1 }, { new: true });
-
-    res.json(updatedPost);    
+                //If the result is liking the entity
+                if (updatedLike.active == true) {
+                    //Check for dislike and disable it
+                    const foundDislike = await dislikeModel.findOne({ dislike_entity: postId, dislike_owner: req.user.id });
+                    if (foundDislike != null) {
+                        await dislikeModel.findByIdAndUpdate(foundDislike.id, { active: false }, { new: true })
+                    }
+                }
+                res.status(200).json(updatedLike);
+            }
+        }
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 }
 
 export const dislikePost = async (req, res) => {
-    const { id: _id } = req.params;
+    const { postId } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id.');
-
-    const post = await postMessage.findById(_id);
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, { dislike_rating: post.dislike_rating + 1 }, { new: true });
-
-    res.json(updatedPost);    
+    if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(409).send('Invalid ID format.');
+    try {
+        //Check for validity
+        const post = await postModel.findById(postId);
+        if (post == null) {
+            res.status(404).json('Post not found.');
+        }
+        else {
+            //Check if post is liked or not
+            const foundDislike = await dislikeModel.findOne({ dislike_entity: postId, dislike_owner: req.user.id })
+            if (foundDislike == null) {
+                const newDislike = await dislikeModel.create({
+                    dislike_entity: postId,
+                    dislike_owner: req.user.id,
+                    entityModel: 'review'
+                })
+                res.status(201).json(newDislike);
+            }
+            else {
+                //If liked -> undo the like and same for the other
+                const updatedDislike = await dislikeModel.findByIdAndUpdate(foundDislike.id, { active: !foundDislike.active }, { new: true });
+                //If the result is disliking the entity
+                if (updatedDislike.active == true) {
+                    //Check for like and disable it
+                    const foundLike = await likeModel.findOne({ like_entity: postId, like_owner: req.user.id });
+                    if (foundLike != null) {
+                        await likeModel.findByIdAndUpdate(foundLike.id, { active: false }, { new: true })
+                    }
+                }
+                res.status(200).json(updatedDislike);
+            }
+        }
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 }
 
 export const getPostBySubject = async (req, res) => {
     const { subject: _subject } = req.params;
-    
-    try{
-        const posts = await postMessage.find({ subject_id: _subject });
+
+    try {
+        const subjectId = await subjectModel.findOne({ subject_abbr: _subject })
+        const posts = await postModel.find({ reviewedSubject: subjectId, active:true })
+                                            .populate('reviewedSubject', 'subject_abbr subject_name')
+                                            .sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
-    catch(err){
+    catch (err) {
         res.status(404).json({ message: err.message });
-    }    
+    }
+}
+
+export const softDeletePost = async (req, res) => {
+    const { postId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(404).send('No post with that id.');
+
+    const updatedPost = await postModel.findByIdAndUpdate(postId, { active: false }, { new: true });
+
+    res.json(updatedPost);
+}
+
+export const getPostsByUserId = async (req, res) => {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).send('No user with that id.');
+
+    const updatedPost = await postModel.find({ reviewer: userId })
+    .populate('reviewedSubject', 'subject_abbr subject_name')
+    .sort({ createdAt: 'desc' });
+
+    res.json(updatedPost);
 }
