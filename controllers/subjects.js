@@ -20,10 +20,10 @@ export const addSubject = async (req, res) => {
 
     try{
 
-        const dupSubjectAbbr = subjectModel.find({ subject_abbr: newSubject.subject_abbr, active: true });
-        const dupSubjectName = subjectModel.find({ subject_name: newSubject.subject_name, active: true });
-
-        if(dupSubjectAbbr == null && dupSubjectName == null){
+        const dupSubjectAbbr = await subjectModel.find({ subject_abbr: newSubject.subject_abbr, active: true });
+        const dupSubjectName = await subjectModel.find({ subject_name: newSubject.subject_name, active: true });
+        
+        if(dupSubjectAbbr.length == 0 && dupSubjectName.length == 0){
             await newSubject.save();
             res.status(201).json(newSubject);
         }      
