@@ -58,6 +58,11 @@ app.use('/api/comments', commentRouter);
 const swaggerDocument = YAML.load('./swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+//Calling other paths (Wrong Path)
+app.all('*', (req, res) => {
+  res.sendStatus(404);
+})
+
 //Listening to port
 app.listen(port, () =>{
     console.log(`Server is running on port: ${port}`);
