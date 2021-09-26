@@ -106,6 +106,11 @@ export const likeComment = async (req, res) => {
                     like_owner: req.user.id,
                     entityModel: 'comment'
                 })
+                //Check for dislike and disable it
+                const foundDislike = await dislikeModel.findOne({ dislike_entity: commentId, dislike_owner: req.user.id });
+                if (foundDislike != null) {
+                    await dislikeModel.findByIdAndUpdate(foundDislike.id, { active: false }, { new: true })
+                }
                 res.status(201).json(newLike);
             }
             else {
@@ -148,6 +153,11 @@ export const dislikeComment = async (req, res) => {
                     dislike_owner: req.user.id,
                     entityModel: 'comment'
                 })
+                //Check for like and disable it
+                const foundLike = await likeModel.findOne({ like_entity: commentId, like_owner: req.user.id });
+                if (foundLike != null) {
+                    await likeModel.findByIdAndUpdate(foundLike.id, { active: false }, { new: true })
+                }
                 res.status(201).json(newDislike);
             }
             else {
