@@ -12,24 +12,16 @@ jobs:
         uses: actions/checkout@v2
         
       - name: Create .env file
-        run: |
-          touch .env.production
-          echo $PORT >> .env.production
-          echo $ATLAS_URI >> .env.production
-          echo $EX_SESSION_SCR >> .env.production
-          echo $GOOGLE_CLIENT_ID >> .env.production
-          echo $GOOGLE_CLIENT_SECRET >> .env.production
-          echo $FRONT_APP_URL >> .env.production
-          echo $BACK_APP_URL >> .env.production
-        shell: bash
-        env:
-          PORT: ${{secrets.PORT}}
-          ATLAS_URI: ${{secrets.ATLAS_URI}}
-          EX_SESSION_SCR: ${{secrets.EX_SESSION_SCR}}
-          GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
-          GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
-          FRONT_APP_URL: ${{secrets.FRONT_APP_URL}}
-          BACK_APP_URL: ${{secrets.BACK_APP_URL}}
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          file_name: .env.production
+          envkey_PORT: ${{secrets.PORT}}
+          envkey_ATLAS_URI: ${{secrets.ATLAS_URI}}
+          envkey_EX_SESSION_SCR: ${{secrets.EX_SESSION_SCR}}
+          envkey_GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+          envkey_GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+          envkey_FRONT_APP_URL: ${{secrets.FRONT_APP_URL}}
+          envkey_BACK_APP_URL: ${{secrets.BACK_APP_URL}}
           
       - name: Create .ssh file
         run: |
