@@ -55,7 +55,7 @@ jobs:
       - name: COPY .env
         run: |
          ls -la
-         scp -i "mod-checkup-server.pem" .env.production ${{secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:/home/azureuser/mod-checkup
+         scp -i "azure.pem" .env.production ${{secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:/home/azureuser/mod-checkup
        
       - name: Deploy Application
         uses: appleboy/ssh-action@v0.1.4
