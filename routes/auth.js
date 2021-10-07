@@ -1,9 +1,8 @@
 import express from 'express';
 import passport from 'passport';
-import dotenv from 'dotenv';
 import checkAuthorize from '../_helpers/checkAuthorize.js'
+import config from '../_helpers/config.js'
 
-dotenv.config();
 const router = express.Router();
 
 router.get('/google', 
@@ -12,15 +11,15 @@ router.get('/google',
 
 router.get('/google/callback', 
     passport.authenticate('google', {
-        successRedirect: process.env.FRONT_APP_URL ,
-        failureRedirect: process.env.FRONT_APP_URL + '/auth/failure'
+        successRedirect: config.FRONT_APP_URL ,
+        failureRedirect: config.FRONT_APP_URL + '/auth/failure'
     })
 )
 
 //Require Login
 router.get('/logout', checkAuthorize(), (req, res) => {
     req.logout();
-    res.redirect(process.env.FRONT_APP_URL + '/auth/logout/success')
+    res.redirect(config.FRONT_APP_URL + '/auth/logout/success')
 })
 
 export default router;
