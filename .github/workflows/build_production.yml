@@ -38,7 +38,7 @@ jobs:
          sudo chmod 400 azure.pem
          mkdir -p ~/.ssh/
          echo "${{secrets.SSH_KNOWN_HOSTS}}" >> ~/.ssh/known_hosts
-         echo "${{secrest.SSH_HOST}}" >> ~/.ssh/known_hosts
+         echo "${{secrets.SSH_HOST}}" >> ~/.ssh/known_hosts
          
       - name: Cloning repository
         uses: appleboy/ssh-action@v0.1.4
