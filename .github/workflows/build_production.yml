@@ -31,8 +31,8 @@ jobs:
           FRONT_APP_URL: ${{secrets.FRONT_APP_URL}}
           BACK_APP_URL: ${{secrets.BACK_APP_URL}}
           
-       - name: Create .ssh file
-         run: |
+      - name: Create .ssh file
+        run: |
          touch azure.pem
          echo "${{secrets.SSH_PEM_KEY}}" >> azure.pem
          sudo chmod 400 azure.pem
@@ -40,9 +40,9 @@ jobs:
          echo "${{secrets.SSH_KNOWN_HOSTS}}" >> ~/.ssh/known_hosts
          echo "${{secrest.SSH_HOST}}" >> ~/.ssh/known_hosts
          
-       - name: Cloning repository
-         uses: appleboy/ssh-action@v0.1.4
-         with:
+      - name: Cloning repository
+        uses: appleboy/ssh-action@v0.1.4
+        with:
           host: ${{secrets.SSH_HOST}}
           username: ${{secrets.SSH_USERNAME}}
           key: ${{secrets.SSH_PEM_KEY}}
@@ -52,14 +52,14 @@ jobs:
            rm -rf mod-checkup-backend
            git clone git@github.com:Memorisza/mod-checkup-backend.git
        
-       - name: COPY .env
-         run: |
+      - name: COPY .env
+        run: |
          ls -la
          scp -i "mod-checkup-server.pem" .env.production ${{secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:/home/azureuser/mod-checkup
        
-       - name: Deploy Application
-         uses: appleboy/ssh-action@v0.1.4
-         with:
+      - name: Deploy Application
+        uses: appleboy/ssh-action@v0.1.4
+        with:
           host: ${{secrets.SSH_HOST}}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{secrets.SSH_PEM_KEY}}
