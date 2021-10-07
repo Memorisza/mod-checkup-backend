@@ -1,0 +1,74 @@
+name: Mod-Checkup-Backend Deployment
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  Deployment:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Create .env file
+        run: |
+          touch .env.production
+          echo $PORT >> .env.production
+          echo $ATLAS_URI >> .env.production
+          echo $EX_SESSION_SCR >> .env.production
+          echo $GOOGLE_CLIENT_ID >> .env.production
+          echo $GOOGLE_CLIENT_SECRET >> .env.production
+          echo $FRONT_APP_URL >> .env.production
+          echo $BACK_APP_URL >> .env.production
+        shell: bash
+        env:
+          PORT: ${{secrets.PORT}}
+          ATLAS_URI: ${{secrets.ATLAS_URI}}
+          EX_SESSION_SCR: ${{secrets.EX_SESSION_SCR}}
+          GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+          GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+          FRONT_APP_URL: ${{secrets.FRONT_APP_URL}}
+          BACK_APP_URL: ${{secrets.BACK_APP_URL}}
+          
+       - name: Create .ssh file
+         run: |
+         touch azure.pem
+         echo "${{secrets.SSH_PEM_KEY}}" >> azure.pem
+         sudo chmod 400 azure.pem
+         mkdir -p ~/.ssh/
+         echo "${{secrets.SSH_KNOWN_HOSTS}}" >> ~/.ssh/known_hosts
+         echo "${{secrest.SSH_HOST}}" >> ~/.ssh/known_hosts
+         
+       - name: Cloning repository
+         uses: appleboy/ssh-action@v0.1.4
+         with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.SSH_USERNAME}}
+          key: ${{secrets.SSH_PEM_KEY}}
+          script: |
+           cd mod-checkup
+           docker-compose down
+           rm -rf mod-checkup-backend
+           git clone git@github.com:Memorisza/mod-checkup-backend.git
+       
+       - name: COPY .env
+         run: |
+         ls -la
+         scp -i "mod-checkup-server.pem" .env.production ${{secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}}:/home/azureuser/mod-checkup
+       
+       - name: Deploy Application
+         uses: appleboy/ssh-action@v0.1.4
+         with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{secrets.SSH_PEM_KEY}}
+          command_timeout: 200m
+          script: |
+           cd mod-checkup
+           docker-compose up -d --build
+           docker image prune -f
+           docker ps -a
+
+       
+       
