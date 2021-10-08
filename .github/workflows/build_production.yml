@@ -43,6 +43,7 @@ jobs:
            docker-compose down
            rm -rf mod-checkup-backend
            git clone git@github.com:Memorisza/mod-checkup-backend.git
+           git clone git@github.com:Jalaler/Final-Project-testapp.git --branch DADA mod-checkup-frontend
        
       - name: COPY .env
         run: |
