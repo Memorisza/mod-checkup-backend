@@ -240,7 +240,7 @@ export const getPostsByUserId = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).send('No user with that id.');
 
-    const updatedPost = await postModel.find({ reviewer: userId })
+    const updatedPost = await postModel.find({ reviewer: userId, active: true })
     .populate('reviewedSubject', 'subject_abbr subject_name')
     .sort({ createdAt: 'desc' });
 
