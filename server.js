@@ -2,12 +2,13 @@ import express from 'express'
 import session from 'express-session'
 import cors from 'cors'
 import mongoose from 'mongoose'
-import dotenv from 'dotenv'
 import passport from 'passport'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import morgan from 'morgan'
+import MemoryStore from 'memorystore';
 
+import config from './_helpers/config.js'
 import reviewRouter from './routes/reviews.js'
 import subjectRouter from './routes/subjects.js'
 import userRouter from './routes/users.js'
@@ -16,17 +17,14 @@ import commentRouter from './routes/comments.js'
 
 import './controllers/passport.js'
 
-dotenv.config()
-
 const app = express();
-const port = process.env.PORT || 5000;
-
-app.use(cors({credentials: true, origin:['http://localhost', 'http://20.190.72.211']}));
+const memStore = MemoryStore(session);
+app.use(cors({credentials: true, origin: config.FRONT_APP_URL}));
 app.use(express.json())
 app.use(morgan('dev'))
 
 //Mongo DB
-const uri = process.env.ATLAS_URI;
+const uri = config.ATLAS_URI;
 mongoose.connect(uri, {useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false}
 );
 
@@ -36,13 +34,16 @@ connection.once('open', () => {
 })
 
 //Passport JS
-app.use(session({ secret: process.env.EX_SESSION_SCR,
+app.use(session({ secret: config.EX_SESSION_SCR,
                   name: 'mcu-said',
                   resave: true,
                   saveUninitialized: false, 
+                  store: new memStore({
+                    checkPeriod: 86400000 // prune expired entries every 24h
+                  }),
                   cookie: {
                       maxAge: 24*60*60*1000,
-                    //   secure: true
+                       secure: true
                   }}))
 app.use(passport.initialize())
 app.use(passport.session())
@@ -56,7 +57,7 @@ app.use('/api/comments', commentRouter);
 
 //Swagger Ui
 const swaggerDocument = YAML.load('./swagger.yaml');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //Calling other paths (Wrong Path)
 app.all('*', (req, res) => {
@@ -64,6 +65,7 @@ app.all('*', (req, res) => {
 })
 
 //Listening to port
-app.listen(port, () =>{
-    console.log(`Server is running on port: ${port}`);
+app.listen(config.PORT, () =>{
+    console.log(`NODE_ENV=${config.NODE_ENV}`);
+    console.log(`Server is running on port: ${config.PORT}`);
 })

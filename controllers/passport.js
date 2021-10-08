@@ -1,16 +1,13 @@
 import passport from 'passport'
 import { OAuth2Strategy } from 'passport-google-oauth';
-import dotenv from 'dotenv'
-import mongoose from 'mongoose'
 import userModel from '../models/user.js'
-
-dotenv.config();
+import config from '../_helpers/config.js'
 
 //Passport JS
 passport.use(new OAuth2Strategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: 'http://localhost:5000/api/auth/google/callback'
+    clientID: config.GOOGLE_CLIENT_ID,
+    clientSecret: config.GOOGLE_CLIENT_SECRET,
+    callbackURL: config.BACK_APP_URL + '/api/auth/google/callback'
     },
     async (accessToken, refreshToken, profile, done) => {
         // Get the user data from google
