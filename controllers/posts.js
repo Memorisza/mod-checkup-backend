@@ -1,4 +1,7 @@
 import mongoose from 'mongoose'
+import csvtojson from 'csvtojson'
+import csv from 'csv-express'
+
 import postModel from '../models/post.js'
 import subjectModel from '../models/subject.js'
 import userModel from '../models/user.js'
@@ -245,4 +248,30 @@ export const getPostsByUserId = async (req, res) => {
     .sort({ createdAt: 'desc' });
 
     res.json(updatedPost);
+}
+
+export const importCsvFile = async (req, res) => {
+    const csvFile = req.files.csvFile;
+    try{
+        const jsonObj = await csvtojson().fromFile(csvFile.tempFilePath);
+        const importedPosts = postModel.insertMany(jsonObj);
+        res.status(201).json(importedPosts);
+    }
+    catch(err){
+        res.status(409).json({ message: err.message });
+    }
+}
+
+export const exportCsvFile = async (req, res) => {
+    //const Param = req.params;
+    try {
+        const foundPosts = await postModel.find().sort({ createdAt: 'desc' }).lean().exec();
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader("Content-Disposition", 'attachment; filename=test.csv');
+        res.csv(foundPosts, true)
+    } 
+    catch (err) {
+        res.status(409).json({ message: err.message });
+    }
 }

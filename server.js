@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import morgan from 'morgan'
 import MemoryStore from 'memorystore';
+import fileUpload from 'express-fileupload'
 
 import config from './_helpers/config.js'
 import reviewRouter from './routes/reviews.js'
@@ -22,6 +23,10 @@ const memStore = MemoryStore(session);
 app.use(cors({credentials: true, origin: config.FRONT_APP_URL}));
 app.use(express.json())
 app.use(morgan('dev'))
+app.use(fileUpload({
+  useTempFiles : true,
+  tempFileDir : '/tmp/'
+}))
 
 //Mongo DB
 const uri = config.ATLAS_URI;
