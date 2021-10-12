@@ -4,9 +4,10 @@ import dislikeModel from '../models/dislikeTable.js'
 import postModel from '../models/post.js'
 import userModel from '../models/user.js'
 import mongoose from 'mongoose'
+import sanitize from 'mongo-sanitize'
 
 export const getActiveCommentsByPostId = async (req, res) => {
-    const { postId } = req.params
+    const { postId } = sanitize(req.params)
 
     try {
         const foundComments = await commentModel.find({ basePost: postId, active: true }).sort({ createdAt: 'desc' })
@@ -19,7 +20,7 @@ export const getActiveCommentsByPostId = async (req, res) => {
 }
 
 export const getCommentById = async (req, res) => {
-    const { commentId } = req.params;
+    const { commentId } = sanitize(req.params);
     try {
         const foundComment = await commentModel.findById(commentId);
 
@@ -34,7 +35,7 @@ export const getCommentById = async (req, res) => {
 }
 
 export const addNewComment = async (req, res) => {
-    const commentBody = req.body;
+    const commentBody = sanitize(req.body);
 
     const newComment = new commentModel(commentBody)
     try {
@@ -53,8 +54,8 @@ export const addNewComment = async (req, res) => {
 }
 
 export const editComment = async (req, res) => {
-    const { commentId } = req.params
-    const newComment = req.body;
+    const { commentId } = sanitize(req.params)
+    const newComment = sanitize(req.body);
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(404).send('No comment with that id.');
     
@@ -78,7 +79,7 @@ export const editComment = async (req, res) => {
 }
 
 export const softDeleteComment = async (req, res) => {
-    const { commentId } = req.params
+    const { commentId } = sanitize(req.params)
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(404).send('No comment with that id.');
 
@@ -88,7 +89,7 @@ export const softDeleteComment = async (req, res) => {
 }
 
 export const likeComment = async (req, res) => {
-    const { commentId } = req.params;
+    const { commentId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(409).send('Invalid ID format.');
     try {
@@ -135,7 +136,7 @@ export const likeComment = async (req, res) => {
 }
 
 export const dislikeComment = async (req, res) => {
-    const { commentId } = req.params;
+    const { commentId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(409).send('Invalid ID format.');
     try {
@@ -182,7 +183,7 @@ export const dislikeComment = async (req, res) => {
 }
 
 export const getActiveCommentsByPostIdAndPage = async (req, res) => {
-    const { postId } = req.params
+    const { postId } = sanitize(req.params)
     let { pageNo, pageSize } = req.params
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);

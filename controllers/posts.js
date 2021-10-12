@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import csvtojson from 'csvtojson'
 import csv from 'csv-express'
+import sanitize from 'mongo-sanitize'
 
 import postModel from '../models/post.js'
 import subjectModel from '../models/subject.js'
@@ -33,7 +34,7 @@ export const getActivePosts = async (req, res) => {
 }
 
 export const createPost = async (req, res) => {
-    const postBody = req.body;
+    const postBody = sanitize(req.body);
 
     const newPost = new postModel(postBody);
 
@@ -82,8 +83,9 @@ export const createPost = async (req, res) => {
 }
 
 export const getPostById = async (req, res) => {
+    const { postId } = sanitize(req.params)
     try {
-        const post = await postModel.findById(req.params.postId).populate('reviewedSubject', 'subject_abbr subject_name');
+        const post = await postModel.findById(postId).populate('reviewedSubject', 'subject_abbr subject_name');
 
         if (post == null) {
             res.status(404).json();
@@ -97,8 +99,8 @@ export const getPostById = async (req, res) => {
 }
 
 export const updatePost = async (req, res) => {
-    const { postId } = req.params;
-    const newPost = req.body;
+    const { postId } = sanitize(req.params);
+    const newPost = sanitize(req.body);
 
     if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(404).send('No post with that id.');
 
@@ -120,7 +122,7 @@ export const updatePost = async (req, res) => {
 }
 
 export const likePost = async (req, res) => {
-    const { postId } = req.params;
+    const { postId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(409).send('Invalid ID format.');
     try {
@@ -167,7 +169,7 @@ export const likePost = async (req, res) => {
 }
 
 export const dislikePost = async (req, res) => {
-    const { postId } = req.params;
+    const { postId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(409).send('Invalid ID format.');
     try {
@@ -213,10 +215,10 @@ export const dislikePost = async (req, res) => {
 }
 
 export const getPostBySubject = async (req, res) => {
-    const { subject: _subject } = req.params;
+    const { subject } = sanitize(req.params);
 
     try {
-        const subjectId = await subjectModel.findOne({ subject_abbr: _subject })
+        const subjectId = await subjectModel.findOne({ subject_abbr: subject })
         const posts = await postModel.find({ reviewedSubject: subjectId, active:true })
                                             .populate('reviewedSubject', 'subject_abbr subject_name')
                                             .sort({ createdAt: 'desc' });
@@ -229,7 +231,7 @@ export const getPostBySubject = async (req, res) => {
 }
 
 export const softDeletePost = async (req, res) => {
-    const { postId } = req.params;
+    const { postId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(404).send('No post with that id.');
 
@@ -239,7 +241,7 @@ export const softDeletePost = async (req, res) => {
 }
 
 export const getPostsByUserId = async (req, res) => {
-    const { userId } = req.params;
+    const { userId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).send('No user with that id.');
 
@@ -277,7 +279,7 @@ export const exportCsvFile = async (req, res) => {
 }
 
 export const getActivePostsByPage = async (req, res) => {
-    let { pageNo, pageSize } = req.params;
+    let { pageNo, pageSize } = sanitize(req.params);
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
     if(pageNo <= 0){
@@ -300,8 +302,8 @@ export const getActivePostsByPage = async (req, res) => {
 }
 
 export const getActivePostsBySubjectAndPage = async (req, res) => {
-    const { subject } = req.params;
-    let { pageNo, pageSize } = req.params;
+    const { subject } = sanitize(req.params);
+    let { pageNo, pageSize } = sanitize(req.params);
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
     if(pageNo <= 0){
