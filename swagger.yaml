@@ -57,6 +57,32 @@ paths:
           description: "All of the posts will be returned"
         "404":
           description: "Not Found"
+  /reviews/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "reviews"
+      summary: "Get all active reviews using page"
+      operationId: "getActivePostsByPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active reviews will be returned by page"
+        "404":
+          description: "Not Found"
   /reviews/{postId}:
     get:
       tags:
@@ -238,7 +264,7 @@ paths:
     get:
       tags:
       - "comments"
-      summary: "Get all active comments by Post"
+      summary: "Get all active comments by post"
       operationId: "getActiveCommentsByPostId"
       consumes:
       - "application/json"
@@ -255,7 +281,37 @@ paths:
           description: "All active comments of the post will be returned"
         "404":
           description: "Not Found"
-      
+  /comments/post/{postId}/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "comments"
+      summary: "Get all active comments by post using page"
+      operationId: "getActiveCommentsByPostIdAndPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "Specified Post ID"
+        required: true
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active comments of the post will be returned by page"
+        "404":
+          description: "Not Found"
   /comments/{commentId}:
     get:
       tags:
@@ -400,6 +456,32 @@ paths:
           description: "All of the subjects will be returned"
         "404":
           description: "Not Found"
+  /subjects/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all active subject using page"
+      operationId: "getAllActiveSubjectsByPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active subjects will be returned by page"
+        "404":
+          description: "Not Found"
   /subjects/{subjectAbbr}:
     get:
       tags:
@@ -466,6 +548,37 @@ paths:
       responses:
         "200":
           description: "Specified subject's reviews will be returned"
+        "404":
+          description: "Not Found"
+  /subjects/posts/{subjectAbbr}/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all active reviews by subject using page"
+      operationId: "getActivePostsBySubjectAndPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active reviews of the subject will be returned by page"
         "404":
           description: "Not Found"
   /users:
@@ -648,6 +761,10 @@ definitions:
         description: "Average rating of subject"
         minimum: 0
         maximum: 5
+      active:
+        type: "boolean"
+        default: true
+        description: "Active status (0 when soft deleted)"
     required:
       - subject_abbr
       - subject_name

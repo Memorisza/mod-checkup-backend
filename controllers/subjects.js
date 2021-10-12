@@ -62,3 +62,38 @@ export const getSubjectInfo = async (req , res) => {
         res.status(404).json({ message: err.message });
     }    
 }
+
+export const getAllActiveSubjects = async (req, res) => {
+    try{
+        const subjects = await subjectModel.find({ active:true })
+                                           .sort({ subject_abbr: 1 });
+
+        res.status(200).json(subjects);
+    }
+    catch (err){
+        res.status(404).json({ message: err.message });
+    }
+}
+
+export const getAllActiveSubjectsByPage = async (req, res) => {
+    let { pageNo, pageSize } = req.params;
+    pageNo = parseInt(pageNo);
+    pageSize = parseInt(pageSize);
+    if(pageNo <= 0){
+        pageNo = 1
+    }
+    if(pageSize <= 0){
+        pageSize = 10
+    }
+    try{
+        const subjects = await subjectModel.find({ active: true })
+                                           .sort({ subject_abbr: 1 })
+                                           .skip(pageSize * (pageNo - 1))
+                                           .limit(pageSize);
+
+        res.status(200).json(subjects);
+    }
+    catch (err){
+        res.status(404).json({ message: err.message });
+    }
+}

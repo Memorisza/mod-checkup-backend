@@ -9,7 +9,7 @@ export const getActiveCommentsByPostId = async (req, res) => {
     const { postId } = req.params
 
     try {
-        const foundComments = await commentModel.find({ basePost: postId, active: true })
+        const foundComments = await commentModel.find({ basePost: postId, active: true }).sort({ createdAt: 'desc' })
 
         res.status(200).json(foundComments);
     }
@@ -178,5 +178,29 @@ export const dislikeComment = async (req, res) => {
     }
     catch (err) {
         res.status(500).json({ message: err.message });
+    }
+}
+
+export const getActiveCommentsByPostIdAndPage = async (req, res) => {
+    const { postId } = req.params
+    let { pageNo, pageSize } = req.params
+    pageNo = parseInt(pageNo);
+    pageSize = parseInt(pageSize);
+    if(pageNo <= 0){
+        pageNo = 1
+    }
+    if(pageSize <= 0){
+        pageSize = 10
+    }
+    try {
+        const foundComments = await commentModel.find({ basePost: postId, active: true })
+                                                .sort({ createdAt: 'desc' })
+                                                .skip(pageSize * (pageNo - 1))
+                                                .limit(pageSize);
+
+        res.status(200).json(foundComments);
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
     }
 }
