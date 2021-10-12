@@ -275,3 +275,41 @@ export const exportCsvFile = async (req, res) => {
         res.status(409).json({ message: err.message });
     }
 }
+
+export const getPostByPage = async (req, res) => {
+    let { pageNo, pageSize } = req.params;
+    pageNo = parseInt(pageNo);
+    pageSize = parseInt(pageSize);
+    try{
+        const foundPage = await postModel.find({ active: true })
+        .populate('reviewedSubject', 'subject_abbr subject_name')
+        .sort({ createdAt: 'desc' })
+        .skip(pageSize * (pageNo - 1))
+        .limit(pageSize)
+        res.status(200).json(foundPage)
+    }
+    catch (err){
+        res.status(409).json({ message: err.message });
+    }
+}
+
+export const getPostBySubjectAndPage = async (req, res) => {
+    const { subject } = req.params;
+    let { pageNo, pageSize } = req.params;
+    pageNo = parseInt(pageNo);
+    pageSize = parseInt(pageSize);
+    
+    try {
+        const subjectId = await subjectModel.findOne({ subject_abbr: subject })
+        const posts = await postModel.find({ reviewedSubject: subjectId, active:true })
+                                            .populate('reviewedSubject', 'subject_abbr subject_name')
+                                            .sort({ createdAt: 'desc' })
+                                            .skip(pageSize * (pageNo - 1))
+                                            .limit(pageSize);
+
+        res.status(200).json(posts);
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}

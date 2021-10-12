@@ -1,6 +1,6 @@
 import express from 'express'
 import { getActiveCommentsByPostId } from '../controllers/comments.js';
-import { createPost, getPostById, updatePost, likePost, dislikePost, softDeletePost, getActivePosts, getPostsByUserId, importCsvFile, exportCsvFile } from '../controllers/posts.js'
+import { createPost, getPostById, updatePost, likePost, dislikePost, softDeletePost, getActivePosts, getPostsByUserId, importCsvFile, exportCsvFile, getPostByPage } from '../controllers/posts.js'
 import checkAuthorize from '../_helpers/checkAuthorize.js'
 import Role from '../_helpers/role.js'
 
@@ -22,5 +22,6 @@ router.get('/history/:userId', checkAuthorize(Role.Student), getPostsByUserId);
 //In Development
 router.get('/csv/export', exportCsvFile);
 router.post('/csv/import', importCsvFile);
+router.get('/page/:pageNo/size/:pageSize', getPostByPage)
 
 export default router;

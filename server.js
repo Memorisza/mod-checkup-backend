@@ -8,6 +8,7 @@ import YAML from 'yamljs'
 import morgan from 'morgan'
 import MemoryStore from 'memorystore';
 import fileUpload from 'express-fileupload'
+import helmet from 'helmet'
 
 import config from './_helpers/config.js'
 import reviewRouter from './routes/reviews.js'
@@ -22,6 +23,7 @@ const app = express();
 const memStore = MemoryStore(session);
 app.use(cors({credentials: true, origin: config.FRONT_APP_URL}));
 app.use(express.json())
+app.use(helmet())
 app.use(morgan('dev'))
 app.use(fileUpload({
   useTempFiles : true,
@@ -48,7 +50,9 @@ app.use(session({ secret: config.EX_SESSION_SCR,
                   }),
                   cookie: {
                       maxAge: 24*60*60*1000,
-                       secure: true
+                      httpOnly: true,
+                      secure: true,
+                      domain: 'mod-checkup.site'
                   }}))
 app.use(passport.initialize())
 app.use(passport.session())
