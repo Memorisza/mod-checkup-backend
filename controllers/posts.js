@@ -276,10 +276,16 @@ export const exportCsvFile = async (req, res) => {
     }
 }
 
-export const getPostByPage = async (req, res) => {
+export const getActivePostsByPage = async (req, res) => {
     let { pageNo, pageSize } = req.params;
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
+    if(pageNo <= 0){
+        pageNo = 1
+    }
+    if(pageSize <= 0){
+        pageSize = 10
+    }
     try{
         const foundPage = await postModel.find({ active: true })
         .populate('reviewedSubject', 'subject_abbr subject_name')
@@ -293,12 +299,17 @@ export const getPostByPage = async (req, res) => {
     }
 }
 
-export const getPostBySubjectAndPage = async (req, res) => {
+export const getActivePostsBySubjectAndPage = async (req, res) => {
     const { subject } = req.params;
     let { pageNo, pageSize } = req.params;
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
-    
+    if(pageNo <= 0){
+        pageNo = 1
+    }
+    if(pageSize <= 0){
+        pageSize = 10
+    }
     try {
         const subjectId = await subjectModel.findOne({ subject_abbr: subject })
         const posts = await postModel.find({ reviewedSubject: subjectId, active:true })

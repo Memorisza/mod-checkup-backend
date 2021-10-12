@@ -79,6 +79,12 @@ export const getAllActiveSubjectsByPage = async (req, res) => {
     let { pageNo, pageSize } = req.params;
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
+    if(pageNo <= 0){
+        pageNo = 1
+    }
+    if(pageSize <= 0){
+        pageSize = 10
+    }
     try{
         const subjects = await subjectModel.find({ active: true })
                                            .sort({ subject_abbr: 1 })

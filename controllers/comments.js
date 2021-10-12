@@ -186,6 +186,12 @@ export const getActiveCommentsByPostIdAndPage = async (req, res) => {
     let { pageNo, pageSize } = req.params
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
+    if(pageNo <= 0){
+        pageNo = 1
+    }
+    if(pageSize <= 0){
+        pageSize = 10
+    }
     try {
         const foundComments = await commentModel.find({ basePost: postId, active: true })
                                                 .sort({ createdAt: 'desc' })
