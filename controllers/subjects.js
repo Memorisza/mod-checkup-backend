@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import sanitize from 'mongo-sanitize'
 import subjectModel from '../models/subject.js'
 import postModel from '../models/post.js'
 
@@ -14,7 +15,7 @@ export const getAllSubjects = async (req, res) => {
 }
 
 export const addSubject = async (req, res) => {
-    const subjectBody = req.body;
+    const subjectBody = sanitize(req.body);
 
     const newSubject = new subjectModel(subjectBody);
 
@@ -37,8 +38,8 @@ export const addSubject = async (req, res) => {
 }
 
 export const updateSubject = async (req, res) => {
-    const { subject: subject } = req.params;
-    const subjectContent = req.body;
+    const { subject } = sanitize(req.params);
+    const subjectContent = sanitize(req.body);
     try{
         const updatedSubject = await subjectModel.findOneAndUpdate({ subject_abbr: subject }, { ... subjectContent}, { new: true })
         res.status(200).json(updatedSubject);
@@ -49,10 +50,10 @@ export const updateSubject = async (req, res) => {
 }
 
 export const getSubjectInfo = async (req , res) => {
-    const { subject: _subject } = req.params;
+    const { subject } = sanitize(req.params);
 
     try{
-        const foundSubject = await subjectModel.findOne({ subject_abbr: _subject });
+        const foundSubject = await subjectModel.findOne({ subject_abbr: subject });
         if(foundSubject == null){
             res.status(404).json();
         }
@@ -76,7 +77,7 @@ export const getAllActiveSubjects = async (req, res) => {
 }
 
 export const getAllActiveSubjectsByPage = async (req, res) => {
-    let { pageNo, pageSize } = req.params;
+    let { pageNo, pageSize } = sanitize(req.params);
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
     if(pageNo <= 0){

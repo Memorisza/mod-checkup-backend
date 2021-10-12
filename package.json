@@ -22,6 +22,7 @@
     "express-session": "^1.17.2",
     "helmet": "^4.6.0",
     "memorystore": "^1.6.6",
+    "mongo-sanitize": "^1.1.0",
     "mongoose": "^5.13.9",
     "morgan": "^1.10.0",
     "mpath": "^0.8.4",
