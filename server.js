@@ -21,7 +21,7 @@ import './controllers/passport.js'
 
 const app = express();
 const memStore = MemoryStore(session);
-app.use(cors({credentials: true, origin: config.FRONT_APP_URL}));
+app.use(cors({credentials: true, origin: [config.FRONT_APP_URL, config.BACK_APP_URL]}));
 app.use(express.json())
 app.use(helmet())
 app.use(morgan('dev'))
@@ -47,13 +47,8 @@ app.use(session({ secret: config.EX_SESSION_SCR,
                   saveUninitialized: false, 
                   store: new memStore({
                     checkPeriod: 86400000 // prune expired entries every 24h
-                  }),
-                  cookie: {
-                      maxAge: 24*60*60*1000,
-                      httpOnly: true,
-                      secure: true,
-                      domain: 'mod-checkup.site'
-                  }}))
+                  })
+                }))
 app.use(passport.initialize())
 app.use(passport.session())
 

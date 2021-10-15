@@ -2,12 +2,14 @@ import mongoose from 'mongoose'
 import csvtojson from 'csvtojson'
 import csv from 'csv-express'
 import sanitize from 'mongo-sanitize'
+import axios from 'axios'
 
 import postModel from '../models/post.js'
 import subjectModel from '../models/subject.js'
 import userModel from '../models/user.js'
 import likeModel from '../models/likeTable.js'
 import dislikeModel from '../models/dislikeTable.js'
+import config from '../_helpers/config.js'
 
 export const getAllPosts = async (req, res) => {
     try {
@@ -23,8 +25,8 @@ export const getAllPosts = async (req, res) => {
 export const getActivePosts = async (req, res) => {
     try {
         const posts = await postModel.find({ active: true })
-        .populate('reviewedSubject', 'subject_abbr subject_name')
-        .sort({ createdAt: 'desc' });
+            .populate('reviewedSubject', 'subject_abbr subject_name')
+            .sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
@@ -47,7 +49,7 @@ export const createPost = async (req, res) => {
             res.status(409).json({ message: "There is no user or subject to be assigned." });
         }
         //Force create (For testing)
-        else if(newPost.force == true){
+        else if (newPost.force == true) {
             await newPost.save();
             res.status(201).json(newPost);
         }
@@ -67,14 +69,14 @@ export const createPost = async (req, res) => {
                     }
                 });
                 //If the reviewer has passed the subject and reviewed it already
-                if(passCount > 0){
+                if (passCount > 0) {
                     res.status(409).json({ message: "You have already reviewed this subject." })
                 }
-                else{
+                else {
                     await newPost.save();
                     res.status(201).json(newPost);
                 }
-            }            
+            }
         }
     }
     catch (err) {
@@ -105,20 +107,20 @@ export const updatePost = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(postId)) return res.status(404).send('No post with that id.');
 
     //Check data validity
-    try{
+    try {
         const foundUser = await userModel.findById(newPost.reviewer);
         const foundSubject = await subjectModel.findById(newPost.reviewedSubject);
         if (foundUser == null && foundSubject == null) {
             res.status(409).json({ message: "There is no user or subject to be assigned." });
         }
-        else{
-            const updatedPost = await postModel.findByIdAndUpdate(postId, { ... newPost, postId }, { new: true });
+        else {
+            const updatedPost = await postModel.findByIdAndUpdate(postId, { ...newPost, postId }, { new: true });
             res.status(200).json(updatedPost);
         }
     }
-    catch(err){
+    catch (err) {
         res.status(409).json({ message: err.message });
-    }    
+    }
 }
 
 export const likePost = async (req, res) => {
@@ -219,9 +221,9 @@ export const getPostBySubject = async (req, res) => {
 
     try {
         const subjectId = await subjectModel.findOne({ subject_abbr: subject })
-        const posts = await postModel.find({ reviewedSubject: subjectId, active:true })
-                                            .populate('reviewedSubject', 'subject_abbr subject_name')
-                                            .sort({ createdAt: 'desc' });
+        const posts = await postModel.find({ reviewedSubject: subjectId, active: true })
+            .populate('reviewedSubject', 'subject_abbr subject_name')
+            .sort({ createdAt: 'desc' });
 
         res.status(200).json(posts);
     }
@@ -246,33 +248,59 @@ export const getPostsByUserId = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).send('No user with that id.');
 
     const updatedPost = await postModel.find({ reviewer: userId, active: true })
-    .populate('reviewedSubject', 'subject_abbr subject_name')
-    .sort({ createdAt: 'desc' });
+        .populate('reviewedSubject', 'subject_abbr subject_name')
+        .sort({ createdAt: 'desc' });
 
     res.json(updatedPost);
 }
 
 export const importCsvFile = async (req, res) => {
     const csvFile = req.files.csvFile;
-    try{
-        const jsonObj = await csvtojson().fromFile(csvFile.tempFilePath);
-        const importedPosts = postModel.insertMany(jsonObj);
-        res.status(201).json(importedPosts);
+    let errCount = 0;
+    let importedPosts = [];
+    const jsonObj = await csvtojson().fromFile(csvFile.tempFilePath);
+    for (const post of jsonObj) {
+        try{
+            const createdPost = await axios.post(config.BACK_APP_URL + '/api/reviews/', post);
+            importedPosts.push(createdPost.data);
+        }
+        catch(err){
+            errCount++;
+            continue;
+        }
     }
-    catch(err){
-        res.status(409).json({ message: err.message });
-    }
+    importedPosts.push({
+        Total_Records: jsonObj.length,
+        Records_inserted: jsonObj.length-errCount ,
+        Records_error: errCount
+    })
+    res.status(201).json(importedPosts);
 }
 
 export const exportCsvFile = async (req, res) => {
     //const Param = req.params;
     try {
-        const foundPosts = await postModel.find().sort({ createdAt: 'desc' }).lean().exec();
+        const foundPosts = await postModel.find({ active: true }).sort({ createdAt: 'desc' }).lean().exec();
+        let csvFile = [];
+        foundPosts.forEach(post => {
+            csvFile.push({
+                grade_received: post.grade_received,
+                teacher_rating: post.teacher_rating,
+                usefulness_rating: post.usefulness_rating,
+                participation_rating: post.participation_rating,
+                academic_year: post.academic_year,
+                semester: post.semester,
+                reviewer: post.reviewer,
+                reviewedSubject: post.reviewedSubject,
+                review_detail: post.reviewDetail,
+                section: post.section
+            })
+        });
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/csv');
-        res.setHeader("Content-Disposition", 'attachment; filename=test.csv');
-        res.csv(foundPosts, true)
-    } 
+        res.setHeader("Content-Disposition", 'attachment; filename=mod-checkup-reviews.csv');
+        res.csv(csvFile, true)
+    }
     catch (err) {
         res.status(409).json({ message: err.message });
     }
@@ -282,21 +310,21 @@ export const getActivePostsByPage = async (req, res) => {
     let { pageNo, pageSize } = sanitize(req.params);
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
-    if(pageNo <= 0){
+    if (pageNo <= 0) {
         pageNo = 1
     }
-    if(pageSize <= 0){
+    if (pageSize <= 0) {
         pageSize = 10
     }
-    try{
+    try {
         const foundPage = await postModel.find({ active: true })
-        .populate('reviewedSubject', 'subject_abbr subject_name')
-        .sort({ createdAt: 'desc' })
-        .skip(pageSize * (pageNo - 1))
-        .limit(pageSize)
+            .populate('reviewedSubject', 'subject_abbr subject_name')
+            .sort({ createdAt: 'desc' })
+            .skip(pageSize * (pageNo - 1))
+            .limit(pageSize)
         res.status(200).json(foundPage)
     }
-    catch (err){
+    catch (err) {
         res.status(409).json({ message: err.message });
     }
 }
@@ -306,19 +334,19 @@ export const getActivePostsBySubjectAndPage = async (req, res) => {
     let { pageNo, pageSize } = sanitize(req.params);
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
-    if(pageNo <= 0){
+    if (pageNo <= 0) {
         pageNo = 1
     }
-    if(pageSize <= 0){
+    if (pageSize <= 0) {
         pageSize = 10
     }
     try {
         const subjectId = await subjectModel.findOne({ subject_abbr: subject })
-        const posts = await postModel.find({ reviewedSubject: subjectId, active:true })
-                                            .populate('reviewedSubject', 'subject_abbr subject_name')
-                                            .sort({ createdAt: 'desc' })
-                                            .skip(pageSize * (pageNo - 1))
-                                            .limit(pageSize);
+        const posts = await postModel.find({ reviewedSubject: subjectId, active: true })
+            .populate('reviewedSubject', 'subject_abbr subject_name')
+            .sort({ createdAt: 'desc' })
+            .skip(pageSize * (pageNo - 1))
+            .limit(pageSize);
 
         res.status(200).json(posts);
     }
