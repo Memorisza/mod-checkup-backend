@@ -10,7 +10,9 @@ export const getActiveCommentsByPostId = async (req, res) => {
     const { postId } = sanitize(req.params)
 
     try {
-        const foundComments = await commentModel.find({ basePost: postId, active: true }).sort({ createdAt: 'desc' })
+        const foundComments = await commentModel.find({ basePost: postId, active: true })
+                                                .populate('commenter', 'displayName')
+                                                .sort({ createdAt: 'desc' })
 
         res.status(200).json(foundComments);
     }
