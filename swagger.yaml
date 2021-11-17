@@ -581,6 +581,27 @@ paths:
           description: "Active reviews of the subject will be returned by page"
         "404":
           description: "Not Found"
+  /subjects/search/{subjectAbbr}:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all active reviews by subject using page"
+      operationId: "searchSubjectByAbbr"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      responses:
+        "200":
+          description: "Found subjects will be returned"
+        "404":
+          description: "Not Found"
   /users:
     get:
       tags:
