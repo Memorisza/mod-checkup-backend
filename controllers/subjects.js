@@ -98,3 +98,15 @@ export const getAllActiveSubjectsByPage = async (req, res) => {
         res.status(404).json({ message: err.message });
     }
 }
+
+export const searchSubjectByAbbr = async(req, res) => {
+    const { subjectAbbr } = sanitize(req.params);
+    try{
+        const foundSubjectsAbbr = await subjectModel.find({ subject_abbr: subjectAbbr ,active:true })
+                                           .sort({ subject_abbr: 1 });
+        res.status(200).json(foundSubjectsAbbr);
+    }
+    catch (err){
+        res.status(404).json({ message: err.message });
+    }
+}
