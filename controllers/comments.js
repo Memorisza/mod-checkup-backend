@@ -197,6 +197,7 @@ export const getActiveCommentsByPostIdAndPage = async (req, res) => {
     }
     try {
         const foundComments = await commentModel.find({ basePost: postId, active: true })
+                                                .populate('commenter', 'displayName')
                                                 .sort({ createdAt: 'desc' })
                                                 .skip(pageSize * (pageNo - 1))
                                                 .limit(pageSize);
