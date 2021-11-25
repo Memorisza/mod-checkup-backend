@@ -12,15 +12,17 @@ router.get('/:subject', getSubjectInfo);
 router.get('/:subject/posts', getPostBySubject);
 router.get('/search/:subjectAbbr', searchSubjectByAbbr);
 router.get('/ratings/avg', getAllSubjectsAverageRatings);
+router.get('/page/:pageNo/size/:pageSize', getAllActiveSubjectsByPage);
+router.get('/:subject/posts/page/:pageNo/size/:pageSize', getActivePostsBySubjectAndPage);
 
-//Teacher & Admin Access
+//Teacher Access
 router.post('/', checkAuthorize(Role.Admin, Role.Teacher), addSubject);
 router.put('/:subject', checkAuthorize(Role.Admin, Role.Teacher), updateSubject);
 
-//In Development
+//Researcher Access
 router.get('/csv/export', checkAuthorize(Role.Admin,Role.Researcher), exportCsvFile);
+
+//Admin Only Access
 router.post('/csv/import', checkAuthorize(Role.Admin) , importCsvFile);
-router.get('/page/:pageNo/size/:pageSize', getAllActiveSubjectsByPage);
-router.get('/:subject/posts/page/:pageNo/size/:pageSize', getActivePostsBySubjectAndPage);
 
 export default router;
