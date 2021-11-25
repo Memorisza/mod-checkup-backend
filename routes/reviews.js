@@ -20,8 +20,10 @@ router.patch('/:postId/dislike', checkAuthorize(Role.Student), dislikePost);
 router.delete('/:postId', checkAuthorize(Role.Student), softDeletePost);
 router.get('/history/:userId', checkAuthorize(Role.Student), getPostsByUserId);
 
-//In Development
+//Researcher Access
 router.get('/csv/export', checkAuthorize(Role.Admin,Role.Researcher), exportCsvFile);
+
+//Admin Only Access
 router.post('/csv/import', checkAuthorize(Role.Admin) , importCsvFile);
 
 
