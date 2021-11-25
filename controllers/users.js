@@ -4,9 +4,9 @@ import userModel from '../models/user.js'
 
 export const getAllUsers = async (req, res) => {
     try{
-        const subjects = await userModel.find();
+        const users = await userModel.find();
 
-        res.status(200).json(subjects);
+        res.status(200).json(users);
     }
     catch (err){
         res.status(404).json({ message: err.message });

@@ -1,6 +1,6 @@
 import express from 'express'
 import { getPostBySubject, getActivePostsBySubjectAndPage } from '../controllers/posts.js';
-import { getAllActiveSubjects, addSubject, updateSubject, getSubjectInfo, getAllActiveSubjectsByPage, searchSubjectByAbbr} from '../controllers/subjects.js'
+import { getAllActiveSubjects, addSubject, updateSubject, getSubjectInfo, getAllActiveSubjectsByPage, searchSubjectByAbbr, getAllSubjectsAverageRatings} from '../controllers/subjects.js'
 import checkAuthorize from '../_helpers/checkAuthorize.js'
 import Role from '../_helpers/role.js'
 
@@ -11,6 +11,7 @@ router.get('/', getAllActiveSubjects);
 router.get('/:subject', getSubjectInfo);
 router.get('/:subject/posts', getPostBySubject);
 router.get('/search/:subjectAbbr', searchSubjectByAbbr);
+router.get('/ratings/avg', getAllSubjectsAverageRatings);
 
 //Teacher & Admin Access
 router.post('/', checkAuthorize(Role.Admin, Role.Teacher), addSubject);
