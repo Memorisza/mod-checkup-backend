@@ -21,8 +21,8 @@ router.delete('/:postId', checkAuthorize(Role.Student), softDeletePost);
 router.get('/history/:userId', checkAuthorize(Role.Student), getPostsByUserId);
 
 //In Development
-router.get('/csv/export', exportCsvFile);
-router.post('/csv/import', importCsvFile);
+router.get('/csv/export', checkAuthorize(Role.Admin,Role.Researcher), exportCsvFile);
+router.post('/csv/import', checkAuthorize(Role.Admin) , importCsvFile);
 
 
 export default router;

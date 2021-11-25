@@ -208,3 +208,40 @@ export const getActiveCommentsByPostIdAndPage = async (req, res) => {
         res.status(404).json({ message: err.message });
     }
 }
+
+export const importCsvFile = async (req, res) => {
+    const csvFile = req.files.csvFile;
+    let errCount = 0;
+    let importedComments = [];
+    const jsonObj = await csvtojson().fromFile(csvFile.tempFilePath);
+    for (const post of jsonObj) {
+        try{
+            const createdComment = await axios.post(config.BACK_APP_URL + '/api/comments/', post);
+            importedComments.push(createdComment.data);
+        }
+        catch(err){
+            errCount++;
+            continue;
+        }
+    }
+    importedComments.push({
+        Total_Records: jsonObj.length,
+        Records_inserted: jsonObj.length-errCount ,
+        Records_error: errCount
+    })
+    res.status(201).json(importedComments);
+}
+
+export const exportCsvFile = async (req, res) => {
+    //const Param = req.params;
+    try {
+        const foundComments = await commentModel.find().sort({ createdAt: 'desc' }).lean().exec();
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader("Content-Disposition", 'attachment; filename=mod-checkup-comments.csv');
+        res.csv(foundComments, true)
+    }
+    catch (err) {
+        res.status(409).json({ message: err.message });
+    }
+}
