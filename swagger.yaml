@@ -602,6 +602,21 @@ paths:
           description: "Found subjects will be returned"
         "404":
           description: "Not Found"
+  /subjects/ratings/avg:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all average ratings for all subject"
+      operationId: "getAllSubjectsAverageRatings"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Average Ratings for all subject will be returned"
+        "500":
+          description: "Internal Server Error"
   /users:
     get:
       tags:
@@ -777,11 +792,6 @@ definitions:
       subject_name:
         type: "string"
         description: "Subject full name (Fire Department Managing 1)"
-      average_rating:
-        type: "number"
-        description: "Average rating of subject"
-        minimum: 0
-        maximum: 5
       active:
         type: "boolean"
         default: true
