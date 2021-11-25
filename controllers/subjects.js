@@ -4,12 +4,12 @@ import subjectModel from '../models/subject.js'
 import postModel from '../models/post.js'
 
 export const getAllSubjects = async (req, res) => {
-    try{
+    try {
         const subjects = await subjectModel.find();
 
         res.status(200).json(subjects);
     }
-    catch (err){
+    catch (err) {
         res.status(404).json({ message: err.message });
     }
 }
@@ -19,20 +19,20 @@ export const addSubject = async (req, res) => {
 
     const newSubject = new subjectModel(subjectBody);
 
-    try{
+    try {
 
         const dupSubjectAbbr = await subjectModel.find({ subject_abbr: newSubject.subject_abbr, active: true });
         const dupSubjectName = await subjectModel.find({ subject_name: newSubject.subject_name, active: true });
-        
-        if(dupSubjectAbbr.length == 0 && dupSubjectName.length == 0){
+
+        if (dupSubjectAbbr.length == 0 && dupSubjectName.length == 0) {
             await newSubject.save();
             res.status(201).json(newSubject);
-        }      
-        else{
-            res.status(409).json({ message: "The entity is already existed."});
-        }        
+        }
+        else {
+            res.status(409).json({ message: "The entity is already existed." });
+        }
     }
-    catch(err){
+    catch (err) {
         res.status(409).json({ message: err.message });
     }
 }
@@ -40,38 +40,38 @@ export const addSubject = async (req, res) => {
 export const updateSubject = async (req, res) => {
     const { subject } = sanitize(req.params);
     const subjectContent = sanitize(req.body);
-    try{
-        const updatedSubject = await subjectModel.findOneAndUpdate({ subject_abbr: subject }, { ... subjectContent}, { new: true })
+    try {
+        const updatedSubject = await subjectModel.findOneAndUpdate({ subject_abbr: subject }, { ...subjectContent }, { new: true })
         res.status(200).json(updatedSubject);
     }
-    catch(err){
+    catch (err) {
         res.status(404).json({ message: err.message });
-    }    
+    }
 }
 
-export const getSubjectInfo = async (req , res) => {
+export const getSubjectInfo = async (req, res) => {
     const { subject } = sanitize(req.params);
 
-    try{
+    try {
         const foundSubject = await subjectModel.findOne({ subject_abbr: subject });
-        if(foundSubject == null){
-            res.status(404).json();
+        if (foundSubject == null) {
+            return res.status(404).json();
         }
         res.status(200).json(foundSubject);
     }
-    catch(err){
+    catch (err) {
         res.status(404).json({ message: err.message });
-    }    
+    }
 }
 
 export const getAllActiveSubjects = async (req, res) => {
-    try{
-        const subjects = await subjectModel.find({ active:true })
-                                           .sort({ subject_abbr: 1 });
+    try {
+        const subjects = await subjectModel.find({ active: true })
+            .sort({ subject_abbr: 1 });
 
         res.status(200).json(subjects);
     }
-    catch (err){
+    catch (err) {
         res.status(404).json({ message: err.message });
     }
 }
@@ -80,33 +80,80 @@ export const getAllActiveSubjectsByPage = async (req, res) => {
     let { pageNo, pageSize } = sanitize(req.params);
     pageNo = parseInt(pageNo);
     pageSize = parseInt(pageSize);
-    if(pageNo <= 0){
+    if (pageNo <= 0) {
         pageNo = 1
     }
-    if(pageSize <= 0){
+    if (pageSize <= 0) {
         pageSize = 10
     }
-    try{
+    try {
         const subjects = await subjectModel.find({ active: true })
-                                           .sort({ subject_abbr: 1 })
-                                           .skip(pageSize * (pageNo - 1))
-                                           .limit(pageSize);
+            .sort({ subject_abbr: 1 })
+            .skip(pageSize * (pageNo - 1))
+            .limit(pageSize);
 
         res.status(200).json(subjects);
     }
-    catch (err){
+    catch (err) {
         res.status(404).json({ message: err.message });
     }
 }
 
-export const searchSubjectByAbbr = async(req, res) => {
+export const searchSubjectByAbbr = async (req, res) => {
     const { subjectAbbr } = sanitize(req.params);
-    try{
-        const foundSubjectsAbbr = await subjectModel.find({ subject_abbr: subjectAbbr ,active:true })
-                                           .sort({ subject_abbr: 1 });
+    try {
+        const foundSubjectsAbbr = await subjectModel.find({ subject_abbr: subjectAbbr, active: true })
+            .sort({ subject_abbr: 1 });
         res.status(200).json(foundSubjectsAbbr);
     }
-    catch (err){
+    catch (err) {
         res.status(404).json({ message: err.message });
+    }
+}
+
+export const getAllSubjectsAverageRatings = async (req, res) => {
+    try {
+        let avgWrapper = [];
+        const avgData = await postModel.aggregate()
+            .match({ active: true })
+            .group({
+                _id: '$reviewedSubject',
+                teacher_avg: { $avg: '$teacher_rating' },
+                useful_avg: { $avg: '$usefulness_rating' },
+                parti_avg: { $avg: '$participation_rating' }
+            })
+            .addFields({
+                t_rounded: { $round: ["$teacher_avg", 1] },
+                u_rounded: { $round: ["$useful_avg", 1] },
+                p_rounded: { $round: ["$parti_avg", 1] }
+            });
+        if (avgData == null) {
+            return res.status(500).json();
+        }
+        for (const tempRatings of avgData) {
+            let foundSubject = await subjectModel.findById(tempRatings._id);
+            let appendData = {
+                subject_abbr: foundSubject.subject_abbr,
+                subject_name: foundSubject.subject_name,
+                teacher_avg: tempRatings.t_rounded,
+                usefulness_avg: tempRatings.u_rounded,
+                participation_avg: tempRatings.p_rounded
+            }
+            avgWrapper.push(appendData);
+        }
+        avgWrapper.sort(function(a, b)  {
+            if (a.subject_abbr < b.subject_abbr) {
+                return -1;
+            }
+            if (a.subject_abbr > b.subject_abbr) {
+                return 1;
+            }
+            // a must be equal to b
+            return 0;
+        });
+        res.status(200).json(avgWrapper);
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message });
     }
 }
