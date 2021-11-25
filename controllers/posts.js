@@ -280,26 +280,11 @@ export const importCsvFile = async (req, res) => {
 export const exportCsvFile = async (req, res) => {
     //const Param = req.params;
     try {
-        const foundPosts = await postModel.find({ active: true }).sort({ createdAt: 'desc' }).lean().exec();
-        let csvFile = [];
-        foundPosts.forEach(post => {
-            csvFile.push({
-                grade_received: post.grade_received,
-                teacher_rating: post.teacher_rating,
-                usefulness_rating: post.usefulness_rating,
-                participation_rating: post.participation_rating,
-                academic_year: post.academic_year,
-                semester: post.semester,
-                reviewer: post.reviewer,
-                reviewedSubject: post.reviewedSubject,
-                review_detail: post.reviewDetail,
-                section: post.section
-            })
-        });
+        const foundPosts = await postModel.find().sort({ createdAt: 'desc' }).lean().exec();
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader("Content-Disposition", 'attachment; filename=mod-checkup-reviews.csv');
-        res.csv(csvFile, true)
+        res.csv(foundPosts, true)
     }
     catch (err) {
         res.status(409).json({ message: err.message });

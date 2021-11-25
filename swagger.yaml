@@ -238,6 +238,34 @@ paths:
           description: "All of that user's posts will be returned"
         "404":
           description: "Not found"
+  /reviews/csv/import:
+    post:
+      tags:
+      - "reviews"
+      summary: "Import CSV"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "csvFile"
+        in: "formData"
+        type: "file"
+        description: "CSV File to upload"
+        required: true
+      responses:
+        "201":
+          description: "All of imported post(s) will be returned."
+  /reviews/csv/export:
+    get:
+      tags:
+      - "reviews"
+      summary: "Export CSV"
+      consumes:
+      - "application/json"
+      responses:
+        "200":
+          description: "CSV file will be returned"
+        "409":
+          description: "Conflicted occurred"
   /comments:
     post:
       tags:
@@ -420,6 +448,34 @@ paths:
           description: "The dislikeTable will be returned"
         "404":
           description: "Post not found"
+  /comments/csv/import:
+    post:
+      tags:
+      - "comments"
+      summary: "Import CSV"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "csvFile"
+        in: "formData"
+        type: "file"
+        description: "CSV File to upload"
+        required: true
+      responses:
+        "201":
+          description: "All of imported post(s) will be returned."
+  /comments/csv/export:
+    get:
+      tags:
+      - "comments"
+      summary: "Export CSV"
+      consumes:
+      - "application/json"
+      responses:
+        "200":
+          description: "CSV file will be returned"
+        "409":
+          description: "Conflicted occurred"
   /subjects:
     post:
       tags:
@@ -617,6 +673,34 @@ paths:
           description: "Average Ratings for all subject will be returned"
         "500":
           description: "Internal Server Error"
+  /subjects/csv/import:
+    post:
+      tags:
+      - "subjects"
+      summary: "Import CSV"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "csvFile"
+        in: "formData"
+        type: "file"
+        description: "CSV File to upload"
+        required: true
+      responses:
+        "201":
+          description: "All of imported post(s) will be returned."
+  /subjects/csv/export:
+    get:
+      tags:
+      - "subjects"
+      summary: "Export CSV"
+      consumes:
+      - "application/json"
+      responses:
+        "200":
+          description: "CSV file will be returned"
+        "409":
+          description: "Conflicted occurred"
   /users:
     get:
       tags:
