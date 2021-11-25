@@ -57,7 +57,37 @@ export const getSubjectInfo = async (req, res) => {
         if (foundSubject == null) {
             return res.status(404).json();
         }
-        res.status(200).json(foundSubject);
+        const avgData = await postModel.aggregate()
+            .match({ reviewedSubject: foundSubject._id })
+            .group({
+                _id: foundSubject._id,
+                teacher_avg: { $avg: '$teacher_rating' },
+                useful_avg: { $avg: '$usefulness_rating' },
+                parti_avg: { $avg: '$participation_rating' }
+            })
+            .addFields({
+                t_rounded: { $round: ["$teacher_avg", 1] },
+                u_rounded: { $round: ["$useful_avg", 1] },
+                p_rounded: { $round: ["$parti_avg", 1] }
+            });
+        console.log(avgData)
+        if (avgData == null) {
+            return res.status(500).json();
+        }
+        const wrapper = {
+            active: foundSubject.active,
+            _id: foundSubject._id,
+            subject_abbr: foundSubject.subject_abbr,
+            subject_name: foundSubject.subject_name,
+            createdAt: foundSubject.createdAt,
+            updatedAt: foundSubject.updatedAt,
+            __v: foundSubject.__v,
+            teacher_avg: avgData[0].t_rounded,
+            usefulness_avg: avgData[0].u_rounded,
+            participation_avg: avgData[0].p_rounded
+        }
+        console.log(wrapper)
+        res.status(200).json(wrapper);
     }
     catch (err) {
         res.status(404).json({ message: err.message });
@@ -141,7 +171,7 @@ export const getAllSubjectsAverageRatings = async (req, res) => {
             }
             avgWrapper.push(appendData);
         }
-        avgWrapper.sort(function(a, b)  {
+        avgWrapper.sort(function (a, b) {
             if (a.subject_abbr < b.subject_abbr) {
                 return -1;
             }
