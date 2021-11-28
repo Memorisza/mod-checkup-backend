@@ -29,11 +29,11 @@
     "morgan": "^1.10.0",
     "mpath": "^0.8.4",
     "passport": "^0.5.0",
-    "passport-google-oauth": "^2.0.0"
+    "passport-google-oauth": "^2.0.0",
+    "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
     "snyk": "^1.717.0",
-    "swagger-ui-express": "^4.1.6",
     "yamljs": "^0.3.0"
   }
 }
