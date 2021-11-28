@@ -736,6 +736,31 @@ paths:
           description: "Specified user's info will be returned"
         "404":
           description: "Not Found"
+    put:
+      tags:
+      - "users"
+      summary: "Get specified user info"
+      operationId: "updateUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        required: true
+      - name: "body"
+        in: "body"
+        description: "Subject that you want to update"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "Updated user's info will be returned"
+        "409":
+          description: "Conflict occurred"
   /users/current:
     get:
       tags:
@@ -751,6 +776,46 @@ paths:
           description: "Current user's info will be returned"
         "401":
           description: "Unauthorized access"
+  /users/{userId}/student:
+    put:
+      tags:
+      - "users"
+      summary: "Set current user's role to student"
+      operationId: "setCurrentUserToStudent"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Created user's info will be returned"
+        "404":
+          description: "Not Found"
+  /users/{userId}/teacher:
+    put:
+      tags:
+      - "users"
+      summary: "Set current user's role to teacher"
+      operationId: "setCurrentUserToTeacher"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Created user's info will be returned"
+        "404":
+          description: "Not Found"
   /auth/google:
     get:
       tags:

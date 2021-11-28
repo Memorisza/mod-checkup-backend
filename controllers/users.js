@@ -72,3 +72,39 @@ export const updateUser = async (req, res) => {
 export const getCurrentUser = async (req, res) => {
     res.send(req.user);
 }
+
+export const setCurrentUserToStudent = async (req, res) => {
+    const { id } = sanitize(req.params);
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('Invalid ID');
+    try{
+        const foundUser = await userModel.findById(id);
+        if(foundUser.role == null || foundUser.role == ''){
+            const updatedUser = await userModel.findByIdAndUpdate(id, { role: 'STUDENT' }, { new: true });
+            res.status(200).json(updatedUser);
+        }
+        else{
+            res.status(409).json({ message: 'This user already have a role.' })
+        }
+    }
+    catch(err){
+        res.status(409).json({ message: err.message })
+    }    
+}
+
+export const setCurrentUserToTeacher = async (req, res) => {
+    const { id } = sanitize(req.params);
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('Invalid ID');
+    try{
+        const foundUser = await userModel.findById(id);
+        if(foundUser.role == null || foundUser.role == ''){
+            const updatedUser = await userModel.findByIdAndUpdate(id, { role: 'TEACHER' }, { new: true });
+            res.status(200).json(updatedUser);
+        }
+        else{
+            res.status(409).json({ message: 'This user already have a role.' })
+        }
+    }
+    catch(err){
+        res.status(409).json({ message: err.message })
+    }    
+}
