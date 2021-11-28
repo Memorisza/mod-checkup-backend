@@ -17,6 +17,10 @@ const commentSchema = new Schema({
         ref: 'user',
         required: true
     },
+    identity_hidden:{
+        type: Boolean,
+        default: false
+    },
     active:{
         type: Boolean,
         default: true

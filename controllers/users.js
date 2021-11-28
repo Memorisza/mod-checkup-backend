@@ -1,11 +1,12 @@
 import mongoose from 'mongoose'
+import sanitize from 'mongo-sanitize';
 import userModel from '../models/user.js'
 
 export const getAllUsers = async (req, res) => {
     try{
-        const subjects = await userModel.find();
+        const users = await userModel.find();
 
-        res.status(200).json(subjects);
+        res.status(200).json(users);
     }
     catch (err){
         res.status(404).json({ message: err.message });
@@ -13,7 +14,7 @@ export const getAllUsers = async (req, res) => {
 }
 
 export const createUser = async (req, res) => {
-    const userBody = req.body;
+    const userBody = sanitize(req.body);
 
     const newUser = new userModel(userBody);
 
@@ -23,7 +24,6 @@ export const createUser = async (req, res) => {
         res.status(201).json(newUser);
     }
     catch(err){
-        console.log(err.message);
         res.status(409).json({ message: err.message })
     }
 }
@@ -55,13 +55,13 @@ export const findUserByGoogleId = async (req, res) => {
 }
 
 export const updateUser = async (req, res) => {
-    const { id: _id } = req.params;
-    const user = req.body;
+    const { id } = sanitize(req.params);
+    const user = sanitize(req.body);
 
-    if(!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No user with that id.');
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No user with that id.');
 
     try{
-        const updatedUser = await userModel.findByIdAndUpdate(_id, { ... user, _id}, { new: true });
+        const updatedUser = await userModel.findByIdAndUpdate(id, { ... user, id}, { new: true });
         res.status(200).json(updatedUser);
     }
     catch(err){
@@ -71,4 +71,40 @@ export const updateUser = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
     res.send(req.user);
+}
+
+export const setCurrentUserToStudent = async (req, res) => {
+    const { id } = sanitize(req.params);
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('Invalid ID');
+    try{
+        const foundUser = await userModel.findById(id);
+        if(foundUser.role == null || foundUser.role == ''){
+            const updatedUser = await userModel.findByIdAndUpdate(id, { role: 'STUDENT' }, { new: true });
+            res.status(200).json(updatedUser);
+        }
+        else{
+            res.status(409).json({ message: 'This user already have a role.' })
+        }
+    }
+    catch(err){
+        res.status(409).json({ message: err.message })
+    }    
+}
+
+export const setCurrentUserToTeacher = async (req, res) => {
+    const { id } = sanitize(req.params);
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('Invalid ID');
+    try{
+        const foundUser = await userModel.findById(id);
+        if(foundUser.role == null || foundUser.role == ''){
+            const updatedUser = await userModel.findByIdAndUpdate(id, { role: 'TEACHER' }, { new: true });
+            res.status(200).json(updatedUser);
+        }
+        else{
+            res.status(409).json({ message: 'This user already have a role.' })
+        }
+    }
+    catch(err){
+        res.status(409).json({ message: err.message })
+    }    
 }

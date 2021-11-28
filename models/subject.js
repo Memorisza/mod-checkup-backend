@@ -14,12 +14,6 @@ const subjectSchema = new Schema({
         required: true,
         unique: true
     },
-    average_rating: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 5
-    },
     active: {
         type: Boolean,
         required: true,

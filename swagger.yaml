@@ -57,6 +57,32 @@ paths:
           description: "All of the posts will be returned"
         "404":
           description: "Not Found"
+  /reviews/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "reviews"
+      summary: "Get all active reviews using page"
+      operationId: "getActivePostsByPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active reviews will be returned by page"
+        "404":
+          description: "Not Found"
   /reviews/{postId}:
     get:
       tags:
@@ -212,6 +238,34 @@ paths:
           description: "All of that user's posts will be returned"
         "404":
           description: "Not found"
+  /reviews/csv/import:
+    post:
+      tags:
+      - "reviews"
+      summary: "Import CSV"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "csvFile"
+        in: "formData"
+        type: "file"
+        description: "CSV File to upload"
+        required: true
+      responses:
+        "201":
+          description: "All of imported post(s) will be returned."
+  /reviews/csv/export:
+    get:
+      tags:
+      - "reviews"
+      summary: "Export CSV"
+      consumes:
+      - "application/json"
+      responses:
+        "200":
+          description: "CSV file will be returned"
+        "409":
+          description: "Conflicted occurred"
   /comments:
     post:
       tags:
@@ -238,7 +292,7 @@ paths:
     get:
       tags:
       - "comments"
-      summary: "Get all active comments by Post"
+      summary: "Get all active comments by post"
       operationId: "getActiveCommentsByPostId"
       consumes:
       - "application/json"
@@ -255,7 +309,37 @@ paths:
           description: "All active comments of the post will be returned"
         "404":
           description: "Not Found"
-      
+  /comments/post/{postId}/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "comments"
+      summary: "Get all active comments by post using page"
+      operationId: "getActiveCommentsByPostIdAndPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "Specified Post ID"
+        required: true
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active comments of the post will be returned by page"
+        "404":
+          description: "Not Found"
   /comments/{commentId}:
     get:
       tags:
@@ -364,6 +448,34 @@ paths:
           description: "The dislikeTable will be returned"
         "404":
           description: "Post not found"
+  /comments/csv/import:
+    post:
+      tags:
+      - "comments"
+      summary: "Import CSV"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "csvFile"
+        in: "formData"
+        type: "file"
+        description: "CSV File to upload"
+        required: true
+      responses:
+        "201":
+          description: "All of imported post(s) will be returned."
+  /comments/csv/export:
+    get:
+      tags:
+      - "comments"
+      summary: "Export CSV"
+      consumes:
+      - "application/json"
+      responses:
+        "200":
+          description: "CSV file will be returned"
+        "409":
+          description: "Conflicted occurred"
   /subjects:
     post:
       tags:
@@ -398,6 +510,32 @@ paths:
       responses:
         "200":
           description: "All of the subjects will be returned"
+        "404":
+          description: "Not Found"
+  /subjects/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all active subject using page"
+      operationId: "getAllActiveSubjectsByPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active subjects will be returned by page"
         "404":
           description: "Not Found"
   /subjects/{subjectAbbr}:
@@ -468,6 +606,101 @@ paths:
           description: "Specified subject's reviews will be returned"
         "404":
           description: "Not Found"
+  /subjects/posts/{subjectAbbr}/page/{pageNo}/size/{pageSize}:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all active reviews by subject using page"
+      operationId: "getActivePostsBySubjectAndPage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      - name: "pageNo"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Number"
+        required: true
+      - name: "pageSize"
+        in: "path"
+        type: "integer"
+        description: "Specified Page Size"
+        required: true
+      responses:
+        "200":
+          description: "Active reviews of the subject will be returned by page"
+        "404":
+          description: "Not Found"
+  /subjects/search/{subjectAbbr}:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all active reviews by subject using page"
+      operationId: "searchSubjectByAbbr"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "subjectAbbr"
+        in: "path"
+        type: "string"
+        description: "Subject Abbreviation (Ex. OOP122)"
+        required: true
+      responses:
+        "200":
+          description: "Found subjects will be returned"
+        "404":
+          description: "Not Found"
+  /subjects/ratings/avg:
+    get:
+      tags:
+      - "subjects"
+      summary: "Get all average ratings for all subject"
+      operationId: "getAllSubjectsAverageRatings"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Average Ratings for all subject will be returned"
+        "500":
+          description: "Internal Server Error"
+  /subjects/csv/import:
+    post:
+      tags:
+      - "subjects"
+      summary: "Import CSV"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "csvFile"
+        in: "formData"
+        type: "file"
+        description: "CSV File to upload"
+        required: true
+      responses:
+        "201":
+          description: "All of imported post(s) will be returned."
+  /subjects/csv/export:
+    get:
+      tags:
+      - "subjects"
+      summary: "Export CSV"
+      consumes:
+      - "application/json"
+      responses:
+        "200":
+          description: "CSV file will be returned"
+        "409":
+          description: "Conflicted occurred"
   /users:
     get:
       tags:
@@ -503,6 +736,31 @@ paths:
           description: "Specified user's info will be returned"
         "404":
           description: "Not Found"
+    put:
+      tags:
+      - "users"
+      summary: "Get specified user info"
+      operationId: "updateUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        required: true
+      - name: "body"
+        in: "body"
+        description: "Subject that you want to update"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "Updated user's info will be returned"
+        "409":
+          description: "Conflict occurred"
   /users/current:
     get:
       tags:
@@ -518,6 +776,46 @@ paths:
           description: "Current user's info will be returned"
         "401":
           description: "Unauthorized access"
+  /users/{userId}/student:
+    put:
+      tags:
+      - "users"
+      summary: "Set current user's role to student"
+      operationId: "setCurrentUserToStudent"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Created user's info will be returned"
+        "404":
+          description: "Not Found"
+  /users/{userId}/teacher:
+    put:
+      tags:
+      - "users"
+      summary: "Set current user's role to teacher"
+      operationId: "setCurrentUserToTeacher"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Created user's info will be returned"
+        "404":
+          description: "Not Found"
   /auth/google:
     get:
       tags:
@@ -643,11 +941,10 @@ definitions:
       subject_name:
         type: "string"
         description: "Subject full name (Fire Department Managing 1)"
-      average_rating:
-        type: "number"
-        description: "Average rating of subject"
-        minimum: 0
-        maximum: 5
+      active:
+        type: "boolean"
+        default: true
+        description: "Active status (0 when soft deleted)"
     required:
       - subject_abbr
       - subject_name
