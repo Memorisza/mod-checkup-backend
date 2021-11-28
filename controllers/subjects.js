@@ -134,7 +134,7 @@ export const getAllActiveSubjectsByPage = async (req, res) => {
 export const searchSubjectByAbbr = async (req, res) => {
     const { subjectAbbr } = sanitize(req.params);
     try {
-        const foundSubjectsAbbr = await subjectModel.find({ subject_abbr: subjectAbbr, active: true })
+        const foundSubjectsAbbr = await subjectModel.find({ subject_abbr:{$regex: subjectAbbr, $options: 'i'}, active: true })
             .sort({ subject_abbr: 1 });
         res.status(200).json(foundSubjectsAbbr);
     }
