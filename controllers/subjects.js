@@ -72,7 +72,6 @@ export const getSubjectInfo = async (req, res) => {
                 u_rounded: { $round: ["$useful_avg", 1] },
                 p_rounded: { $round: ["$parti_avg", 1] }
             });
-        console.log(avgData)
         if (avgData == null) {
             return res.status(500).json();
         }
@@ -88,7 +87,6 @@ export const getSubjectInfo = async (req, res) => {
             usefulness_avg: avgData[0].u_rounded,
             participation_avg: avgData[0].p_rounded
         }
-        console.log(wrapper)
         res.status(200).json(wrapper);
     }
     catch (err) {
