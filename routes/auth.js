@@ -19,11 +19,7 @@ router.get('/google/callback',
 //Require Login
 router.get('/logout', checkAuthorize(), (req, res) => {
     req.logout();
-    req.session.destroy((err) => {
-        res.clearCookie('mcu-said');
-        // Don't redirect, just print text
-        res.status(200).json({ message:'Logged out' });
-    });
+    res.redirect(config.FRONT_APP_URL + '/auth/logout/success')
 })
 
 export default router;
