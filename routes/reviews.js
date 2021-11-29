@@ -1,6 +1,6 @@
 import express from 'express'
 import { getActiveCommentsByPostId } from '../controllers/comments.js';
-import { createPost, getPostById, updatePost, likePost, dislikePost, softDeletePost, getActivePosts, getPostsByUserId, importCsvFile, exportCsvFile, getActivePostsByPage } from '../controllers/posts.js'
+import { createPost, getPostById, updatePost, likePost, dislikePost, softDeletePost, getActivePosts, getPostsByUserId, importCsvFile, exportCsvFile, getActivePostsByPage, getPostRatingCount } from '../controllers/posts.js'
 import checkAuthorize from '../_helpers/checkAuthorize.js'
 import Role from '../_helpers/role.js'
 
@@ -11,6 +11,7 @@ router.get('/', getActivePosts);
 router.get('/:postId', getPostById);
 router.get('/:postId/comments', getActiveCommentsByPostId);
 router.get('/page/:pageNo/size/:pageSize', getActivePostsByPage);
+router.get('/rating_count/:postId', getPostRatingCount);
 
 //Student Access
 router.post('/', checkAuthorize(Role.Student), createPost);

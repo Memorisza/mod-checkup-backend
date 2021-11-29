@@ -1,5 +1,5 @@
 import express from 'express'
-import { addNewComment, editComment, getCommentById, softDeleteComment, likeComment, dislikeComment, getActiveCommentsByPostId, getActiveCommentsByPostIdAndPage, exportCsvFile, importCsvFile } from '../controllers/comments.js';
+import { addNewComment, editComment, getCommentById, softDeleteComment, likeComment, dislikeComment, getActiveCommentsByPostId, getActiveCommentsByPostIdAndPage, exportCsvFile, importCsvFile, getCommentRatingCount } from '../controllers/comments.js';
 import checkAuthorize from '../_helpers/checkAuthorize.js'
 import Role from '../_helpers/role.js'
 
@@ -9,6 +9,7 @@ const router = express.Router();
 router.get('/:commentId', getCommentById);
 router.get('/post/:postId', getActiveCommentsByPostId);
 router.get('/post/:postId/page/:pageNo/size/:pageSize', getActiveCommentsByPostIdAndPage)
+router.get('/rating_count/:commentId', getCommentRatingCount);
 
 //Require Login
 router.post('/', checkAuthorize(), addNewComment);
