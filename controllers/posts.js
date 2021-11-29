@@ -339,3 +339,19 @@ export const getActivePostsBySubjectAndPage = async (req, res) => {
         res.status(404).json({ message: err.message });
     }
 }
+
+export const getPostRatingCount = async (req, res) => {
+    const { postId } = sanitize(req.params)
+    try{
+        const likeCount = await likeModel.find({ like_entity: postId, active:true }).count();
+        const dislikeCount = await dislikeModel.find({ dislike_entity: postId, active:true }).count();
+        const rating_wrapper = {
+            like_count: likeCount,
+            dislike_count: dislikeCount
+        }
+        res.status(200).json(rating_wrapper);
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
