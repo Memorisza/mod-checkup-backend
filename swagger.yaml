@@ -266,6 +266,27 @@ paths:
           description: "CSV file will be returned"
         "409":
           description: "Conflicted occurred"
+  /reviews/rating_count/{postId}:
+    get:
+      tags:
+      - "reviews"
+      summary: "Get rating count from post"
+      operationId: "getPostRatingCount"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "postId"
+        in: "path"
+        type: "string"
+        description: "Post ID to find rating"
+        required: true
+      responses:
+        "200":
+          description: "Rating will be returned"
+        "404":
+          description: "Not found"
   /comments:
     post:
       tags:

@@ -245,3 +245,19 @@ export const exportCsvFile = async (req, res) => {
         res.status(409).json({ message: err.message });
     }
 }
+
+export const getCommentRatingCount = async (req, res) => {
+    const { commentId } = sanitize(req.params)
+    try{
+        const likeCount = await likeModel.find({ like_entity: commentId, active:true }).count();
+        const dislikeCount = await dislikeModel.find({ dislike_entity: commentId, active:true }).count();
+        const rating_wrapper = {
+            like_count: likeCount,
+            dislike_count: dislikeCount
+        }
+        res.status(200).json(rating_wrapper);
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
