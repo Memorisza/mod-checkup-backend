@@ -4,12 +4,15 @@ import dislikeModel from '../models/dislikeTable.js'
 import postModel from '../models/post.js'
 import userModel from '../models/user.js'
 import mongoose from 'mongoose'
+import sanitize from 'mongo-sanitize'
 
 export const getActiveCommentsByPostId = async (req, res) => {
-    const { postId } = req.params
+    const { postId } = sanitize(req.params)
 
     try {
         const foundComments = await commentModel.find({ basePost: postId, active: true })
+                                                .populate('commenter', 'displayName')
+                                                .sort({ createdAt: 'desc' })
 
         res.status(200).json(foundComments);
     }
@@ -19,7 +22,7 @@ export const getActiveCommentsByPostId = async (req, res) => {
 }
 
 export const getCommentById = async (req, res) => {
-    const { commentId } = req.params;
+    const { commentId } = sanitize(req.params);
     try {
         const foundComment = await commentModel.findById(commentId);
 
@@ -34,7 +37,7 @@ export const getCommentById = async (req, res) => {
 }
 
 export const addNewComment = async (req, res) => {
-    const commentBody = req.body;
+    const commentBody = sanitize(req.body);
 
     const newComment = new commentModel(commentBody)
     try {
@@ -53,8 +56,8 @@ export const addNewComment = async (req, res) => {
 }
 
 export const editComment = async (req, res) => {
-    const { commentId } = req.params
-    const newComment = req.body;
+    const { commentId } = sanitize(req.params)
+    const newComment = sanitize(req.body);
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(404).send('No comment with that id.');
     
@@ -78,7 +81,7 @@ export const editComment = async (req, res) => {
 }
 
 export const softDeleteComment = async (req, res) => {
-    const { commentId } = req.params
+    const { commentId } = sanitize(req.params)
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(404).send('No comment with that id.');
 
@@ -88,7 +91,7 @@ export const softDeleteComment = async (req, res) => {
 }
 
 export const likeComment = async (req, res) => {
-    const { commentId } = req.params;
+    const { commentId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(409).send('Invalid ID format.');
     try {
@@ -135,7 +138,7 @@ export const likeComment = async (req, res) => {
 }
 
 export const dislikeComment = async (req, res) => {
-    const { commentId } = req.params;
+    const { commentId } = sanitize(req.params);
 
     if (!mongoose.Types.ObjectId.isValid(commentId)) return res.status(409).send('Invalid ID format.');
     try {
@@ -178,5 +181,83 @@ export const dislikeComment = async (req, res) => {
     }
     catch (err) {
         res.status(500).json({ message: err.message });
+    }
+}
+
+export const getActiveCommentsByPostIdAndPage = async (req, res) => {
+    const { postId } = sanitize(req.params)
+    let { pageNo, pageSize } = req.params
+    pageNo = parseInt(pageNo);
+    pageSize = parseInt(pageSize);
+    if(pageNo <= 0){
+        pageNo = 1
+    }
+    if(pageSize <= 0){
+        pageSize = 10
+    }
+    try {
+        const foundComments = await commentModel.find({ basePost: postId, active: true })
+                                                .populate('commenter', 'displayName')
+                                                .sort({ createdAt: 'desc' })
+                                                .skip(pageSize * (pageNo - 1))
+                                                .limit(pageSize);
+
+        res.status(200).json(foundComments);
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
+export const importCsvFile = async (req, res) => {
+    const csvFile = req.files.csvFile;
+    let errCount = 0;
+    let importedComments = [];
+    const jsonObj = await csvtojson().fromFile(csvFile.tempFilePath);
+    for (const post of jsonObj) {
+        try{
+            const createdComment = await axios.post(config.BACK_APP_URL + '/api/comments/', post);
+            importedComments.push(createdComment.data);
+        }
+        catch(err){
+            errCount++;
+            continue;
+        }
+    }
+    importedComments.push({
+        Total_Records: jsonObj.length,
+        Records_inserted: jsonObj.length-errCount ,
+        Records_error: errCount
+    })
+    res.status(201).json(importedComments);
+}
+
+export const exportCsvFile = async (req, res) => {
+    //const Param = req.params;
+    try {
+        const foundComments = await commentModel.find().sort({ createdAt: 'desc' }).lean().exec();
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader("Content-Disposition", 'attachment; filename=mod-checkup-comments.csv');
+        res.csv(foundComments, true)
+    }
+    catch (err) {
+        res.status(409).json({ message: err.message });
+    }
+}
+
+export const getCommentRatingCount = async (req, res) => {
+    const { commentId } = sanitize(req.params)
+    try{
+        const likeCount = await likeModel.find({ like_entity: commentId, active:true }).count();
+        const dislikeCount = await dislikeModel.find({ dislike_entity: commentId, active:true }).count();
+        const rating_wrapper = {
+            like_count: likeCount,
+            dislike_count: dislikeCount
+        }
+        res.status(200).json(rating_wrapper);
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
     }
 }
