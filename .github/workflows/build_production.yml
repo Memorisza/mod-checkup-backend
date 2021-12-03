@@ -2,7 +2,7 @@ name: Mod-Checkup-Backend Deployment
 
 on:
   push:
-    branches: [uat]
+    branches: [master]
 
 jobs:
   Deployment:
