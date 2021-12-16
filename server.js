@@ -21,7 +21,7 @@ import './controllers/passport.js'
 
 const app = express();
 const memStore = MemoryStore(session);
-app.use(cors({credentials: true, origin: [config.FRONT_APP_URL, config.BACK_APP_URL]}));
+app.use(cors({credentials: true, origin: [config.FRONT_APP_URL, config.BACK_APP_URL, "https://www.mod-checkup.site"]}));
 app.use(express.json())
 app.use(helmet())
 app.use(morgan('dev'))
